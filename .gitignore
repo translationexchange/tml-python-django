@@ -1,0 +1,15 @@
+*.pyc
+.project
+.pydevproject
+.idea
+.settings
+test.py
+nohup.out
+dist
+django/dist
+*.egg-info/
+*.swp
+.coverage
+tml.log
+logs
+**/logs/tml.log
