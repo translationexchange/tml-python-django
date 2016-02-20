@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+__author__ = 'a@toukmanov.ru, xepa4ep'
 # encoding: UTF-8
 from django.conf import settings
 from django.core.cache import caches
@@ -8,6 +9,9 @@ try:
 except ImportError:
     # PY3
     from urllib.parse import urlencode
+
+
+
 
 class CachedClient(object):
     def __init__(self, client, backend):
@@ -30,7 +34,7 @@ class CachedClient(object):
         return '%s?%s' % (url, urlencode(params))
 
     def get(self, url, params = {}):
-        """ GET request to API 
+        """ GET request to API
             Args:
                 url (string): URL
                 params (dict): params

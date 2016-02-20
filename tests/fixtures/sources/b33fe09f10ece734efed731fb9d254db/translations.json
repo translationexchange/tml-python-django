@@ -1,0 +1,27 @@
+{"results":{
+    "90e0ac08b178550f6513762fa892a0ca": [
+        {
+            "label":"Привет {name}"
+        }
+    ],
+    "fd975338f424b9267131cd7b430503a2": [
+        {
+            "label":"Old tranlation"
+        }
+    ],
+    "d427c90200cb35296e1ecbd7e8348010": [
+        {
+            "label":"Эй {name}, привет %(name)s"
+        }
+    ],
+    "fec8958242a45c2a9440be9fcc84ce47": [
+        {
+            "label":"Одно яблоко"
+        }
+    ],
+    "10d83cabb9b1ceadb2d4a377ef1270db": [
+        {
+            "label":"{count||яблоко,яблока,яблок}"
+        }
+    ]
+}}

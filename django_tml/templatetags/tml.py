@@ -49,7 +49,7 @@ class BlockTranslateNode(BaseBlockTranslateNode):
             description = self.description.resolve(data)
         else:
             description = ''
- 
+
         custom_data = {}
         for var, val in list(self.extra_context.items()):
             custom_data[var] = val.resolve(data)
@@ -94,7 +94,7 @@ class BlockTranslateNode(BaseBlockTranslateNode):
             # nowrap flag is set
             return text
         return inline_translations.wrap_string(text, key, translated)
- 
+
 
 
 class LegacyBlockTranlationNode(BlockTranslateNode):

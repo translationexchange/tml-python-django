@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 # encoding: UTF-8
+__author__ = 'a@toukmanov.ru, xepa4ep'
+
 from . import activate_source
 from .translator import Translator
 from django.conf import settings

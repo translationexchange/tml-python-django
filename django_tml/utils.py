@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 # encoding: UTF-8
+__author__ = 'a@toukmanov.ru, xepa4ep'
 from tml.tools.viewing_user import reset_viewing_user, set_viewing_user
 from tml.rules.contexts.gender import Gender
 

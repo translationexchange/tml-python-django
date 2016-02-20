@@ -1,0 +1,70 @@
+{"results":{
+    "f2a61dbfc8c1eeb357d834cc88dd7bab":[
+        {
+            "label":"{actor} любезно дала тебе {count||яблоко, яблока, яблок}",
+            "context":{"actor":{"gender":"female"}}
+        },
+        {
+            "label":"{actor} дал тебе всего {count} яблоко, мужик!",
+            "context":{"actor":{"gender":"male"},"count":{"number":"one"}}
+        },
+        {
+            "label":"{actor||дал,дала,дало} тебе всего {count||яблоко, яблока, яблок} яблоко, мужик!",
+            "context":{}
+        }
+    ],
+    "799b44f2ceec7634e4ee1c1122bc1c1a":[],
+    "2c868dcba5cd6e9f06dc77397b5a77b1":[
+        {
+        "label":"{name} дала вам {count} яблоко",
+        "context":{
+            "count":{"number":"one"},"viewing_user":{"gender":"female"}}
+        },
+        {
+            "label":"{name} дал мне {count} яблоко",
+            "context":{"count":{"number":"one"}}
+        },
+        {
+            "label":"{name} дал тебе {count||яблоко,яблока,яблок}",
+            "context":{}
+        }
+    ],
+    "8a7c891aa103e45e904a173f218cab9a":[
+        {
+            "label":"Хелло {name}"
+        }
+    ],
+    "90e0ac08b178550f6513762fa892a0ca": [
+        {
+            "label":"Привет {name}"
+        }
+    ],
+    "f69632cd7df28439309f1726faa1dc3e": [
+        {
+            "label":"Здорово {name}"
+        }
+    ],
+    "fec8958242a45c2a9440be9fcc84ce47": [
+        {
+            "label":"Одно яблоко"
+        }
+    ],
+    "d461a22a1dd21b14782e8a0553454612": [
+        {
+            "label":"{number} яблоко",
+            "context":{"number":{"number":"one"}}
+        },
+        {
+            "label":"{number} яблока",
+            "context":{"number":{"number":"few"}}
+        },
+        {
+            "label":"{number} яблок",
+            "context":{"number":{"number":"other"}}
+        }
+    ],
+    "5174f88691edb354a9f46af6e7455bb8":[
+        {
+            "label":"Тест"
+    }]
+}}

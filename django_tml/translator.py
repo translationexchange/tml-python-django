@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 # encoding: UTF-8
+__author__ = 'a@toukmanov.ru, xepa4ep'
 from django.conf import settings
 from django.utils.translation.trans_real import to_locale, templatize, deactivate_all, parse_accept_lang_header, language_code_re, language_code_prefix_re
 from tml import build_context

@@ -1,0 +1,25 @@
+{
+    "results":[
+        {
+            "id":1324560,
+            "locale":"ru",
+            "label":"Hello (en)",
+            "rank":1,
+            "context":{},
+            "context_description":"{actor} is a female",
+            "translator":{"id":1933,"user_id":385,"email":"andrey@toukmanov.ru","display_name":"Andrey Toukmanov","image_url":"https://gravatar.com/avatar/ca338522dba48ed3895724b0e91a3857.png?s=65","rank":100.0,"link":"https://api.translationexchange.com/v1/translators/1933"},
+            "created_at":"2015-02-27 09:20:03",
+            "link":"https://api.translationexchange.com/v1/translations/1324560"
+        }
+    ],
+    "pagination":{
+        "total_count":1,
+        "current_page":1,
+        "total_pages":1,
+        "per_page":50,
+        "links":{
+            "first":"https://api.translationexchange.com/v1/translation_keys/8ad5a7fe0a12729764e31a1e3ca80059/translations?locale=ru&page=1",
+            "self":"https://api.translationexchange.com/v1/translation_keys/8ad5a7fe0a12729764e31a1e3ca80059/translations?locale=ru&page=1","last":"https://api.translationexchange.com/v1/translation_keys/8ad5a7fe0a12729764e31a1e3ca80059/translations?locale=ru&page=1"
+        }
+    }
+}

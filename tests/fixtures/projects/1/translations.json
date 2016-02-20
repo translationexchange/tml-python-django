@@ -1,0 +1,52 @@
+{"results":{
+    "f2a61dbfc8c1eeb357d834cc88dd7bab":[
+        {
+            "label":"{actor} любезно дала тебе {count||яблоко, яблока, яблок}",
+            "context":{"actor":{"gender":"female"}}
+        },
+        {
+            "label":"{actor} дал тебе всего {count} яблоко, мужик!",
+            "context":{"actor":{"gender":"male"},"count":{"number":"one"}}
+        },
+        {
+            "label":"{actor||дал,дала,дало} тебе всего {count||яблоко, яблока, яблок} яблоко, мужик!",
+            "context":{}
+        }
+    ],
+    "799b44f2ceec7634e4ee1c1122bc1c1a":[],
+    "2c868dcba5cd6e9f06dc77397b5a77b1":[
+        {
+        "label":"{name} дала вам {count} яблоко",
+        "context":{
+            "count":{"number":"one"},"viewing_user":{"gender":"female"}}
+        },
+        {
+            "label":"{name} дал мне {count} яблоко",
+            "context":{"count":{"number":"one"}}
+        },
+        {
+            "label":"{name} дал тебе {count||яблоко,яблока,яблок}",
+            "context":{}
+        }
+    ],
+    "8a7c891aa103e45e904a173f218cab9a":[
+        {
+            "label":"Хелло {name}"
+        }
+    ],
+    "5174f88691edb354a9f46af6e7455bb8":[
+        {
+            "label":"Тест"
+    }]
+},
+"pagination":{
+    "total_count":5,
+    "current_page":1,
+    "total_pages":1,
+    "per_page":50,
+    "links":{
+        "first":"https://api.translationexchange.com/v1/applications/767/translations?locale=ru&page=1",
+        "self":"https://api.translationexchange.com/v1/applications/767/translations?locale=ru&page=1",
+        "last":"https://api.translationexchange.com/v1/applications/767/translations?locale=ru&page=1"
+    }
+}}

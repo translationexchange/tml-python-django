@@ -1,0 +1,51 @@
+{
+"id":1,
+"key":"qwerty",
+"name":"Test application",
+"threshold":1,
+"default_language": {"id":64,"locale":"en","english_name":"English","native_name":"English","right_to_left":false,"flag_url":"https://d23w63adpjpix6.cloudfront.net/7/55/1/27/c9262c9538cda82c6.png","status":"published"},
+"languages":[
+    {"id":64,"locale":"en","english_name":"English","native_name":"English","right_to_left":false,"flag_url":"https://d23w63adpjpix6.cloudfront.net/7/55/1/27/c9262c9538cda82c6.png","status":"published"},
+    {"id":136,"locale":"id","english_name":"Indonesian","native_name":"Indonesia","right_to_left":false,"flag_url":"https://d23w63adpjpix6.cloudfront.net/66/45/85/68/3e07721cf0393fd5e.png","status":"published"},
+    {"id":233,"locale":"ru","english_name":"Russian","native_name":"Русский","right_to_left":false,"flag_url":"https://d23w63adpjpix6.cloudfront.net/91/67/34/74/6d14cff5e2826c668.png","status":"published"}
+],
+"created_at":"2015-02-16 07:03:17",
+"updated_at":"2015-02-16 07:03:17",
+"default_locale":"en",
+"features":{
+    "inline_translations":true,
+    "machine_translations":true,
+    "translation_suggestions":true,
+    "decorations":true,
+    "shortcuts":true,
+    "context_rules":true,
+    "language_cases":true,
+    "javascript_sdk":false,
+    "glossary":true,
+    "forum":true,
+    "awards":true,
+    "admin_translations":true,
+    "open_registration":true,
+    "language_flags":true
+},
+"tokens":{},
+"css":".tml_not_translated { border-bottom: 1px dotted red; } .tml_translated { border-bottom: 1px dotted green; } .tml_fallback { border-bottom: 1px dotted #e90; } .tml_pending { border-bottom: 1px dotted #e90; } .tml_locked { border-bottom: 1px dotted blue; } .tml_language_case { padding:3px; border: 1px dotted blue; }",
+"shortcuts":{
+    "Ctrl+Shift+S":"Tml.Utils.openShortcuts();",
+    "Ctrl+Shift+G":"Tml.Utils.login();",
+    "Ctrl+Shift+I":"Tml.Utils.toggleInlineTranslations();",
+    "Ctrl+Shift+L":"Tml.UI.LanguageSelector.show(true);",
+    "Ctrl+Shift+R":"Tml.Utils.reloadSettings();",
+    "Ctrl+Shift+O":"Tml.Utils.logout();"}
+,
+"tools":{
+    "postoffice":"https://postoffice.translationexchange.com",
+    "host":"https://translation-center.translationexchange.com",
+    "assets":"https://trex-translation-center.s3-us-west-1.amazonaws.com/assets",
+    "javascript":"https://trex-translation-center.s3-us-west-1.amazonaws.com/assets/tools-8ff3582f18abc84db5dd50045afd41bf.js",
+    "stylesheet":"https://trex-translation-center.s3-us-west-1.amazonaws.com/assets/tools-c81abe6bb4cd518dcd1455127790c9c9.css"
+},
+"snapshot":{
+    "version":"20150217120059",
+    "base_url":"https://trex-snapshots.s3-us-west-1.amazonaws.com/snapchotpath"}
+}

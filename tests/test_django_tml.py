@@ -19,6 +19,9 @@ from django_tml import activate, activate_source, inline_translations, tr,\
     deactivate_source
 from django_tml.translator import Translator
 
+# encoding: UTF-8
+__author__ = 'a@toukmanov.ru, xepa4ep'
+
 
 class WithSnapshotSettings(object):
     def __init__(self):
