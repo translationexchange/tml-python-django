@@ -1,5 +1,5 @@
 -e .
--e git+https://github.com/translationexchange/tml-python.git@73cd6a85d0c0c80caf080307d1d71ce7fe6e7ad2#egg=tml-origin_develop
+-e git+https://github.com/translationexchange/tml-python.git@f51f844f6ca523c84e36d5fb120754c3d21a0382#egg=tml-origin_develop
 coverage==4.0.2
 django-coverage-plugin==1.0
 flake8==2.5.0

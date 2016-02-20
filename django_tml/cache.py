@@ -1,6 +1,7 @@
 from __future__ import absolute_import
-__author__ = 'a@toukmanov.ru, xepa4ep'
 # encoding: UTF-8
+__author__ = 'a@toukmanov.ru, xepa4ep'
+
 from django.conf import settings
 from django.core.cache import caches
 from tml.api.client import Client
