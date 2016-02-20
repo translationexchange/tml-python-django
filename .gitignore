@@ -1,15 +1,13 @@
 *.pyc
-.project
-.pydevproject
-.idea
-.settings
-test.py
-nohup.out
-dist
-django/dist
-*.egg-info/
-*.swp
+*.mo
+django_tml.egg-info
+build/
+dist/
+.idea/
+.tox/
+.cache/
 .coverage
-tml.log
-logs
-**/logs/tml.log
+htmlcov/
+**/logs/tml.log  # tml log
+te
+

@@ -1,0 +1,63 @@
+<script>
+    function tml_add_css(doc, value, inline) {
+        var css = null;
+        if (inline) {
+            css = doc.createElement('style'); css.type = 'text/css';
+            if (css.styleSheet) css.styleSheet.cssText = value;
+            else css.appendChild(document.createTextNode(value));
+        } else {
+            css = doc.createElement('link'); css.setAttribute('type', 'text/css');
+            css.setAttribute('rel', 'stylesheet'); css.setAttribute('media', 'screen');
+            if (value.indexOf('//') != -1) css.setAttribute('href', value);
+            else css.setAttribute('href', '{{application.tools.host}}' + value);
+        }
+        doc.getElementsByTagName('head')[0].appendChild(css);
+        return css;
+    }
+
+    function tml_add_script(doc, id, src, onload) {
+        var script = doc.createElement('script');
+        script.setAttribute('id', id); script.setAttribute('type', 'application/javascript');
+        if (src.indexOf('//') != -1)  script.setAttribute('src', src);
+        else script.setAttribute('src', '{{application.tools.host}}' + src);
+        script.setAttribute('charset', 'UTF-8');
+        if (onload) script.onload = onload;
+        doc.getElementsByTagName('head')[0].appendChild(script);
+        return script;
+    }
+
+    (function() {
+        if (window.addEventListener) window.addEventListener('load', tml_init, false); // Standard
+        else if (window.attachEvent) window.attachEvent('onload', tml_init); // Microsoft
+        window.setTimeout(function() {  // just in case, hit it one more time a second later
+            tml_init();
+        }, 1000);
+
+        function tml_init() {
+            if (window.tml_already_initialized) return;
+            window.tml_already_initialized = true;
+
+            tml_add_css(window.document, '{{application.tools.stylesheet}}', false);
+            tml_add_css(window.document, "{{application.css}}", true);
+
+            tml_add_script(window.document, 'tml-jssdk', '{{application.tools.javascript}}', function() {
+                Tml.app_key = '{{application.key}}';
+                Tml.host = '{{application.tools.host}}';
+                Tml.sources = {{sources|safe}};
+                Tml.default_locale = '{{application.default_locale}}';
+                Tml.page_locale = '{{language.locale}}';
+                Tml.locale = '{{language.locale}}';
+                {% if application.features.shortcuts %}
+                    {% for shortcut, handler in application.shortcuts.items %}
+                        shortcut.add('{{shortcut}}', function() {
+                            {{handler}}
+                        });
+                    {% endfor %}
+                {% endif %}
+                if (typeof(tml_on_ready) === 'function') tml_on_ready();
+                if (typeof(tml_footer_scripts) === 'function') tml_footer_scripts();
+                console.log('tml_init: done')
+            });
+        }
+    })();
+</script>
