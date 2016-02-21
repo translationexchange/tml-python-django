@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 # encoding: UTF-8
 import six
 from os.path import dirname
-from copy import copy
+from copy import deepcopy
 from django.conf import settings
 from django.test import SimpleTestCase
 from gettext import ngettext, gettext
@@ -23,12 +23,14 @@ from django_tml.translator import Translator
 __author__ = 'a@toukmanov.ru, xepa4ep'
 
 
-class WithSnapshotSettings(object):
-    def __init__(self):
-        self.TML = {}
-        for key in settings.TML:
-            self.TML[key] = settings.TML[key]
-        self.TML['snapshot'] = dirname(settings.FIXTURES_PATH) + '/snapshot.tar.gz'
+def WithSnapshotSettings():
+    TML = deepcopy(settings.TML)
+    TML['cache'] = {
+        'enabled': True,
+        'adapter': 'file',
+        'path': dirname(settings.FIXTURES_PATH) + '/snapshot.tar.gz'
+    }
+    return TML
 
 
 class DjangoTMLTestCase(SimpleTestCase):
@@ -222,7 +224,7 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEquals('Ms', tr('honorific'))
 
     def test_snapshot_context(self):
-        t = Translator(WithSnapshotSettings())
+        t = Translator(tml_settings=WithSnapshotSettings())
         self.assertTrue(t.use_snapshot, 'Use snapshot with settings')
         t.activate('ru')
         self.assertEquals('Test', t.context.tr('Test'), 'Stub translation without source')

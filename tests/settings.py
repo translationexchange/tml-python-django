@@ -56,8 +56,9 @@ def get_client():
 
 TML = {
     'api_client': get_client,
-    'snapshot': None,
-    'cache': None
+    'cache': {'enabled': False},
+    'data_preprocessors': ('tml.tools.list.preprocess_lists',),
+    'env_generators': ('tml.tools.viewing_user.get_viewing_user',)
 }
 
 TML_DATA_PREPROCESSORS = ['tml.tools.list.preprocess_lists',]

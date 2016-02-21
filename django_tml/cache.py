@@ -2,9 +2,9 @@ from __future__ import absolute_import
 # encoding: UTF-8
 __author__ = 'a@toukmanov.ru, xepa4ep'
 
-from django.conf import settings
 from django.core.cache import caches
 from tml.api.client import Client
+from tml.config import CONFIG
 try:
     from urllib import urlencode
 except ImportError:
@@ -21,13 +21,13 @@ class CachedClient(object):
 
     @classmethod
     def instance(cls):
-        client = Client(settings.TML.get('token'))
+        client = Client(CONFIG.get('token'))
         return cls.wrap(client)
 
     @classmethod
     def wrap(cls, client):
-        backend_name = settings.TML.get('cache', None)
-        if backend_name is None:
+        backend_name = CONFIG['cache'].get('adapter', None)
+        if backend_name in (None, 'file'):  # should build adapters
             return client
         return cls(client, caches[backend_name])
 
