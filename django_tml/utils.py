@@ -1,8 +1,15 @@
 from __future__ import absolute_import
 # encoding: UTF-8
-__author__ = 'a@toukmanov.ru, xepa4ep'
+import json
+import base64
+from datetime import datetime, timedelta
+from time import mktime
 from tml.tools.viewing_user import reset_viewing_user, set_viewing_user
 from tml.rules.contexts.gender import Gender
+from .exceptions import CookieParseError
+
+__author__ = 'a@toukmanov.ru, xepa4ep'
+
 
 class ViewingUserMiddleware(object):
     """ Middleware for viewing user """
@@ -20,3 +27,20 @@ class ViewingUserMiddleware(object):
         """ Reset source and flush missed keys """
         reset_viewing_user()
         return response
+
+
+def ts():
+    return int(mktime(datetime.utcnow().timetuple()))
+
+
+def cookie_name(app_key):
+    return 'trex_%s' % app_key
+
+
+def decode_cookie(base64_payload, secret=None):
+    try:
+        data = json.loads(base64.b64decode(base64_payload))
+        # TODO: Verify signature
+        return data
+    except Exception as e:
+        raise CookieParseError(e)

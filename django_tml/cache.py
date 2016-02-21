@@ -12,8 +12,6 @@ except ImportError:
     from urllib.parse import urlencode
 
 
-
-
 class CachedClient(object):
     def __init__(self, client, backend):
         self.client = client

@@ -17,7 +17,7 @@ from tml.strings import to_string
 from tml.tools.viewing_user import set_viewing_user
 from django_tml import activate, activate_source, inline_translations, tr,\
     deactivate_source
-from django_tml.translator import Translator
+from django_tml.translator import Translation
 
 # encoding: UTF-8
 __author__ = 'a@toukmanov.ru, xepa4ep'
@@ -36,17 +36,17 @@ def WithSnapshotSettings():
 class DjangoTMLTestCase(SimpleTestCase):
     """ Tests for django tml tranlator """
     def setUp(self):
-        Translator._instance = None # reset settings
+        Translation._instance = None # reset settings
         inline_translations.turn_off()
 
     def test_tranlator(self):
-        t = Translator.instance()
-        self.assertEquals(Translator, t.__class__, "Instance returns translator")
-        self.assertEquals(t, Translator.instance(), "Singletone")
+        t = Translation.instance()
+        self.assertEquals(Translation, t.__class__, "Instance returns translator")
+        self.assertEquals(t, Translation.instance(), "Singletone")
 
     def test_languages(self):
         """ Language switch """
-        t = Translator.instance()
+        t = Translation.instance()
         # reset en tranlation:
         en_hello_url = t.client.build_url('translation_keys/90e0ac08b178550f6513762fa892a0ca/translations',
                                           {'locale':'en', 'page': 1})
@@ -66,7 +66,7 @@ class DjangoTMLTestCase(SimpleTestCase):
 
     def test_source(self):
         """ Test languages source """
-        t = Translator.instance()
+        t = Translation.instance()
         t.activate('ru')
         t.activate_source('index')
         self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
@@ -80,7 +80,7 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
 
     def test_gettext(self):
-        t = Translator.instance()
+        t = Translation.instance()
         t.activate('ru')
         t.activate_source('index')
         self.assertEqual(to_string('Привет %(name)s'), t.ugettext('Hello {name}'), 'ugettext')
@@ -187,7 +187,7 @@ class DjangoTMLTestCase(SimpleTestCase):
                           'Turn off inline')
 
     def test_sources_stack(self):
-        t = Translator.instance()
+        t = Translation.instance()
         self.assertEqual(None, t.source, 'None source by default')
         t.activate_source('index')
         self.assertEqual('index', t.source, 'Use source')
@@ -224,7 +224,7 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEquals('Ms', tr('honorific'))
 
     def test_snapshot_context(self):
-        t = Translator(tml_settings=WithSnapshotSettings())
+        t = Translation(tml_settings=WithSnapshotSettings())
         self.assertTrue(t.use_snapshot, 'Use snapshot with settings')
         t.activate('ru')
         self.assertEquals('Test', t.context.tr('Test'), 'Stub translation without source')

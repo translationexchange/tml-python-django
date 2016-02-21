@@ -33,36 +33,46 @@ def fallback_locale(locale):
         return None
 
 
-class Translator(object):
-    """ Basic translator class """
+class Translation(object):
+    """ Basic translation class """
     _instance = None
 
     @classmethod
     def instance(cls):
         """ Singletone
             Returns:
-                Translator
+                Translation
         """
         if cls._instance is None:
             cls._instance = cls(getattr(django_settings, 'TML', {}))
         return cls._instance
 
     def __init__(self, tml_settings):
-        self.config = configure(**tml_settings)
+        self.config = None
         self.locale = None
         self.source = None
-        self.supports_inline_tranlation = False
         self.cache = True
         self._context = None
         self._sources = []
         self._supported_locales = None
         self._client = None
         self.used_sources = []
+        self.translator = None
+        self.access_token = None
+        self.translator = None
+        self.init(tml_settings)
+
+    def init(self, tml_settings):
+        self.config = configure(**tml_settings)
         self._build_preprocessors()
 
     @property
+    def application(self):
+        return self.context.application
+
+    @property
     def languages(self):
-        return self.context.application.languages
+        return self.application.languages
 
     def turn_off_cache(self):
         """ Cache policy: turn off """
@@ -83,7 +93,7 @@ class Translator(object):
             RenderEngine.env_generators.append(import_string(include))
 
 
-    def build_context(self):
+    def build_context(self, access_token=None, translator=None):
         """ Build context instance for locale
             Args:
                 locale (str): locale name (en, ru)
@@ -92,13 +102,9 @@ class Translator(object):
         """
         return build_context(locale=self.locale,
                              source=self.source,
-                             client=self.build_client(),
+                             client=self.build_client(access_token),
                              use_snapshot=self.use_snapshot)
 
-    def set_supports_inline_tranlation(self, value = True):
-        """ Set is flag for inline translation """
-        self.supports_inline_tranlation = value
-        return self
 
     @property
     def client(self):
@@ -106,9 +112,9 @@ class Translator(object):
             Returns:
                 Client
         """
-        return self.build_client()
+        return self.context.client
 
-    def build_client(self):
+    def build_client(self, access_token):
         if self.use_snapshot:
             # Use snapshot:
             return CachedClient.wrap(open_snapshot(self.config['cache']['path']))
@@ -122,13 +128,13 @@ class Translator(object):
                 # full factory function or class name: path.to.module.function_name
                 custom_client_import = '.'.split(custom_client)
                 module = __import__('.'.join(custom_client[0, -1]))
-                return getattr(module, custom_client[-1])()
+                return getattr(module, custom_client[-1])(access_token)
             elif custom_client is object:
                 # custom client as is:
                 return custom_client
         if not self.cache:
             # No cache:
-            return Client(self.config['token'])
+            return Client(access_token or self.config['token'])
         return CachedClient.instance()
 
     @property
@@ -144,13 +150,20 @@ class Translator(object):
         """
         if self._context is None:
             try:
-                self._context = self.build_context()
+                self._context = self.build_context(self.access_token)
             except LanguageNotSupported:
                 # Activated language is not supported:
                 self.locale = None # reset locale
-                self._context = self.build_context()
+                self._context = self.build_context(self.access_token)
         return self._context
 
+    def set_access_token(self, token):
+        self.access_token = token
+        return self
+
+    def set_translator(self, translator):
+        self.translator = translator
+        return self
 
     def get_language(self):
         """ getter to current language """
@@ -163,6 +176,13 @@ class Translator(object):
         """
         self.locale = locale
         self.reset_context()
+
+    def activate_tml(self, source, access_token=None, translator=None):
+        if access_token:
+            self.set_access_token(access_token)
+        if translator:
+            self.set_translator(translator)
+        self.activate_source(source)
 
     def _use_source(self, source):
         self.source = source
@@ -266,7 +286,6 @@ class Translator(object):
 
         # convert {name} -> %(name)s
         return text_to_sprintf(option.label, self.context.language)
-
 
 
     def get_language_bidi(self):

@@ -9,7 +9,7 @@ from django.template.defaulttags import token_kwargs
 from django.utils import six, translation
 import sys
 from django.utils.translation.trans_real import trim_whitespace
-from django_tml import Translator
+from django_tml import Translation
 from tml import legacy
 from django.templatetags.i18n import BlockTranslateNode as BaseBlockTranslateNode
 from .. import inline_translations
@@ -77,7 +77,7 @@ class BlockTranslateNode(BaseBlockTranslateNode):
             Returns:
                 translated text, key, translated
         """
-        context = Translator.instance().context
+        context = Translation.instance().context
         try:
             translation = context.fetch(label, description)
             translated = True
@@ -107,7 +107,7 @@ class LegacyBlockTranlationNode(BlockTranslateNode):
             Return:
                 tranlation
         """
-        context = Translator.instance().context
+        context = Translation.instance().context
         translation = legacy.fetch(context, label, description)
         # Execute in legacy mode with %(token)s support
         return legacy.execute(translation, data, {})
