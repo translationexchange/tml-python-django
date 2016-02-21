@@ -10,4 +10,5 @@ dist/
 htmlcov/
 **/logs/tml.log  # tml log
 te
-
+*.log
+*.DS_Store
