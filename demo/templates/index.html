@@ -1,0 +1,291 @@
+{% load i18n %}
+{% load tml %}
+{% load tml_inline %}
+<html>
+    <head>
+        <title>TML Python SDK</title>
+        <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+        <style>
+            .result {padding: 1em; border: 1px solid #888; margin: 1em 0;}
+            .result p {font-size: 1.2em; margin-bottom: 0px;}
+            .result dl {margin-bottom: 0px;}
+            .result dl dt {font-size:0.6em; color:#888;}
+            .result dl dd {font-size:0.8em; color:#555;}
+            .examples td {padding: 0 1em; vertical-align: bottom;}
+            .examples td {padding-top: 0.8em}
+            .examples td small {display: block; margin-bottom: 0.5em;}
+            .examples td:first-child {width: 40%;}
+            .examples td:last-child {padding-bottom: 20px;}
+            .examples td:last-child textarea {display: block; width: 100%; margin: 0.4em 0;}
+            .examples td:last-child pre {margin-bottom: 0;}
+        </style>
+        {% tml_inline_header %}
+    </head>
+    <body>
+    <div class="container">
+        <div class="col-md-6">
+
+            <form method="post" action="/inline_mode" class="form-inline">
+                <label>
+                    <input type="checkbox" name="inline_mode" {% if inline_tranlations_enabled %}checked{% endif %}/>
+                    inline edit
+                </label>
+                <button type="submit">OK</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form method="post" action="/auth" class="form-inline">
+                <input type="text" class="form-control" name="name" placeholder="name" value="{{viewing_user.value}}" />
+                <select name="gender" class="form-control">
+                    <option value="other" {% if viewing_user.gender = "other" %}selected{% endif %}>other</option>
+                    <option value="male" {% if viewing_user.gender = "male" %}selected{% endif %}>male</option>
+                    <option value="female" {% if viewing_user.gender = "female" %}selected{% endif %}>female</option>
+                </select>
+                <button type="submit" class="btn-default btn">Login</button>
+                {% if viewing_user %}
+                <a href="/auth?logout=1">Exit</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <form id="test_tr" method="post" action="/translate" style="padding-bottom: 3em;">
+        <div class="container">
+            <div class="templatetags row">
+                <div class="col-md-12">
+                    <h2>Configure</h2>
+<pre>
+TML = {
+    'token': 'API token value',
+    'monkeypatch': True,
+    'cache': 'cache_backend'
+}
+</pre>
+                    <dl>
+                        <dt>token</dt>
+                        <dd>Translationexchange API token</dd>
+                        <dt>monkeypatch</dt>
+                        <dd>Override <a href="https://docs.djangoproject.com/en/1.7/topics/i18n/translation/">django.utils.translation</a> functions</dd>
+                        <dt>cache</dt>
+                        <dd>Name of <a href="">django cache backend</a></dd>
+                    </dl>
+                    <h2>Select language</h2>
+                    <pre>language = translation.get_language_from_request(request, True)
+translation.activate(language)</pre>
+                    <small>Selected language is <b>{{language}}</b></small>
+                    <h2>Use tr function</h2>
+                    <pre>
+print tr(
+    label = '{user} give {to:dat} {count} apples',
+    data = {
+        'user':{'gender':'male', 'name':'Вася'},
+        'to': {'gender':'female','name':'Маша'},
+        'count': 5
+    },
+    decription = 'apple present'
+)</pre>
+                    <h2>Use template tags</h2>
+
+                    <table class="examples">
+                        <tr>
+                            <td>
+                            <small>
+                                Use standart i18n template tags
+                            </small>
+<pre>{&shy;% load i18n %&shy;}
+{&shy;% trans "Test" %&shy;}</pre>
+                            </td>
+                            <td>
+                                {% trans "Test" %}
+                            </td>
+                        </tr>
+                        {% include "blocktrans.html" %}
+                        <tr>
+                            <td>
+                                 <small>
+                                     При подгрузке в шаблон tml, blocktrans - перегружается, он работает в режиме совместимости:
+                                     <ul>
+                                         <li>
+                                             разрешены {&shy;{двойные скобки}&shy;}
+                                         </li>
+                                         <li>
+                                             %(python)s синтаксис форматирования в переводе&mdash; вы можете просто импортировать существующие переводы без изменений
+                                         </li>
+                                     </ul>
+
+                                 </small>
+                                 <pre>{&shy;% load tml %&shy;}{&shy;% blocktrans %&shy;}{&shy;{user}&shy;} give to {&shy;{to}&shy;} {&shy;{count}&shy;} apples{&shy;% endblocktrans %&shy;}</pre>
+                            </td>
+                            <td>
+                                 {% blocktrans %}{{user}} give to {{to}} {{count}} apples{% endblocktrans %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <small>tr - нативный тег, для перевода.</small>
+                                <pre>{&shy;% tr %&shy;}Test{&shy;% endtr %&shy;}</pre>
+                            </td>
+                            <td>
+                                {% tr %}Test{% endtr %}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <small>Синтаксис, аналогичный <a href="https://docs.djangoproject.com/en/1.7/topics/i18n/translation/#blocktrans-template-tag">blocktrans</a></small>
+                                <pre>{&shy;% tr with name="John" %&shy;}Hello {name}{&shy;% endtr %&shy;}</pre>
+                            </td>
+                            <td>
+                                {% tr with name="John" %}Hello {name}{% endtr %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <small>Поддержка всех фич движка</small>
+                                <pre>{&shy;% tr %&shy;}{user} give to {to} {count} apples{&shy;% endtr %&shy;}</pre>
+                            </td>
+                            <td>
+                                {% tr %}{user} give to {to} {count} apples{% endtr %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <small>Inline переводы включаются в cookies, но могут быть отключены свойством nowrap:</small>
+
+                                <pre>
+&lt;textarea&gt;
+{&shy;% tr %&shy;}Test{&shy;% endtr %&shy;}
+&lt;/textarea&gt;
+&lt;img alt="{&shy;% tr nowrap %&shy;}Test{&shy;% endtr %&shy;}" /&gt;</pre>
+                            </td>
+                            <td>
+                                <textarea>{% tr %}Test{% endtr %}</textarea>
+                                <pre>&lt;img alt="{% tr nowrap %}Test{% endtr %}" /&gt;</pre>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="pagetitile">TML Python SDK</h1>
+                </div>
+                <div class="col-md-6">
+
+                        <div class="form-group">
+                            <label for="label">Label</label>
+                            <input type="text" class="form-control" name="label" value="{{label}}" id="label"/>
+                            <p class="help-block" id="label-example">
+                                {date|уже,сегодня,еще не} {user||дал,дала,дало} {to::dat} {count|яблоко, яблока, яблок}
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" name="description" value="{{description}}" id="description" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="data">Data</label>
+                            <textarea style="height: 12em;" class="form-control" name="data" id="data">{{data}}</textarea>
+                            <small>In JSON format</small>
+                            <pre class="help-block" id="data-example">
+    {
+        "user":{
+            "name":"Вася",
+            "gender":"male"},
+        "to":{
+            "name":"Маша",
+            "gender":"female"
+        },
+        "date":"2015-01-01",
+        "count":5
+    }
+                            </pre>
+                        </div>
+                        <div class="form-group">
+                            <label>Locale</label>
+                            <input type="text" value="{{locale}}" name="locale" id="locale" class="form-control"/></label>
+                        </div>
+                        <div class="form-group">
+                            <label>Source</label>
+                            <input type="text" value="{{source}}" name="source" id="source" class="form-control"/></label>
+                        </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="result">
+                        {% if result %}
+                        <div class="result">
+                            <p>{{result}}</p>
+                            <dl>
+                                <dd>label</dd>
+                                <dd>{{label}}</dd>
+                                <dt>data</dt>
+                                <dd>{{data}}</dd>
+                                <dt>description</dt>
+                                <dd>{{description}}</dd>
+                            </dl>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="background: green; position: fixed; padding: 1em; bottom: 0px; width: 100%;">
+            <div class="container">
+                <button class="btn btn-default" type="submit">Tranlate</button>
+            </div>
+        </div>
+    </form>
+
+        <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script>
+            $(function(){
+                $('#data-example').click(function(){
+                    $('#data').val($.trim(this.innerHTML));
+                });
+                $('#label-example').click(function(){
+                    $('#label').val($.trim(this.innerHTML));
+                });
+                var $form = $('#test_tr');
+                var forceSubmit = false;
+                $form.submit(function(){
+                    if (forceSubmit){
+                        //something wrong - submit data:
+                        return true;
+                    }
+                    var label = $('#label').val();
+                    var data = $('#data').val();
+                    var settings =
+                        '<dl class="settings">'+
+                            '<dt>label</dt>'+
+                            '<dd>'+$('#label').val()+'</dd>'+
+                            '<dt>data</dt>'+
+                            '<dd>'+$('#data').val()+'</dd>'+
+                            '<dt>description</dt>'+
+                            '<dd>'+$('#description').val()+'</dd>'+
+                        '</dl>';
+                    $form.find('button').attr('disabled', true);
+                    $.ajax(
+                        $form.attr('action'),
+                        {
+                            data: $form.serialize(),
+                            type: 'POST',
+                            dataType: 'json',
+                            success: function(resp){
+                                $form.find('button').removeAttr('disabled');
+                                $('#result').html(
+                                    '<div class="result"><p>'+resp.result+'</p>'+settings+'</div>'+
+                                    $('#result').html()
+                                );
+                            },
+                            error: function(){
+                                forceSubmit = true;
+                                $form.submit();
+                            }
+                        });
+                    return false;
+                });
+            })
+        </script>
+        {% tml_inline_footer %}
+    </body>
+</html>

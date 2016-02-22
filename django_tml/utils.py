@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from time import mktime
 from tml.tools.viewing_user import reset_viewing_user, set_viewing_user
 from tml.rules.contexts.gender import Gender
-from .exceptions import CookieParseError
+from .exceptions import CookieNotParsed
 
 __author__ = 'a@toukmanov.ru, xepa4ep'
 
@@ -43,4 +43,4 @@ def decode_cookie(base64_payload, secret=None):
         # TODO: Verify signature
         return data
     except Exception as e:
-        raise CookieParseError(e)
+        raise CookieNotParsed(e)

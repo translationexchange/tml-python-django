@@ -22,7 +22,7 @@ class TmlInlineNode(Node):
             t -= (t % agent_config['cache'])
             agent_host += "?ts=%s" % t
         agent_config['locale'] = translation.get_language()
-        agent_config['source'] = tml_current_source
+        agent_config['source'] = translation.source
         agent_config['css'] = translation.application.css
         agent_config['sdk'] = full_version()
         languages = agent_config.setdefault('languages', [])
@@ -35,7 +35,7 @@ class TmlInlineNode(Node):
         data = {
             'agent_config': dumps(agent_config),
             'agent_host': agent_host,
-            'application_key': application.key}
+            'application_key': translation.application.key}
         return ''.join([
             render_to_string('django_tml/inline_translations/%s.html' % tpl, data) for tpl in self.templates])
 

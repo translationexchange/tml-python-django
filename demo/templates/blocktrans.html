@@ -1,0 +1,12 @@
+{% load i18n %}
+<tr>
+    <td>
+         <small>
+             в шаблоне не полключен tml, blocktrans работает в режиме совместимости: из перевода выкидываются опции (используется последняя) и склонения
+         </small>
+         <pre>{&shy;% blocktrans with user=user.name to=to.name %&shy;}{&shy;{user}&shy;} give to {&shy;{to}&shy;} {&shy;{count}&shy;} apples{&shy;% endblocktrans %&shy;}</pre>
+    </td>
+    <td>
+         {% blocktrans with user=user.name to=to.name %}{{user}} give to {{to}} {{count}} apples{% endblocktrans %}
+    </td>
+</tr>

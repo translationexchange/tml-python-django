@@ -37,7 +37,7 @@ def exit_source():
 def get_languages():
     return Translation.instance().languages
 
-if settings.TML.get('monkeypatch', False):
+if settings.TML.pop('monkeypatch', False):
     translation._trans = Translation.instance()
 
 
