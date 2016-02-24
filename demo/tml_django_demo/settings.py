@@ -54,7 +54,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django_tml.middleware.TmlControllerMiddleware',
-    'django_tml.inline_translations.middleware.InlineTranslationsMiddleware',
+#    'django_tml.inline_translations.middleware.InlineTranslationsMiddleware',
     'tml_django_demo.auth.DemoViewingUserMiddleware',
 )
 
@@ -101,9 +101,10 @@ CACHES = {
 }
 
 TML = {
+    'application': {'key': '80f6dd0ef85061acd56aa71f9cdd77d08bb9d5dd314c1cb8b13a890843b66640'},
     'monkeypatch': True,
     'cache': {
-        'enabled': True,
+        'enabled': False,
         'adapter': 'file',
         'path': pj(os.path.dirname(BASE_DIR), 'tests/fixtures/snapshot.tar.gz') },
     'agent': {
@@ -113,4 +114,7 @@ TML = {
     },
     'data_preprocessors': ('tml.tools.list.preprocess_lists',),
     'env_generators': ('tml.tools.viewing_user.get_viewing_user',),
+    'logger': {
+        'path': pj(BASE_DIR, 'logs', 'tml.log')
+    }
 }

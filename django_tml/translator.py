@@ -14,6 +14,7 @@ from tml.legacy import text_to_sprintf, suggest_label
 from tml.api.client import Client
 from tml.api.snapshot import open_snapshot
 from tml.render import RenderEngine
+from tml.logger import LoggerMixin
 
 __author__ = 'a@toukmanov.ru, xepa4ep'
 
@@ -32,7 +33,7 @@ def fallback_locale(locale):
         return None
 
 
-class Translation(object):
+class Translation(LoggerMixin):
     """ Basic translation class """
     _instance = None
 
@@ -47,6 +48,7 @@ class Translation(object):
         return cls._instance
 
     def __init__(self, tml_settings):
+        LoggerMixin.__init__(self)
         self.config = None
         self.locale = None
         self.source = None
@@ -137,8 +139,17 @@ class Translation(object):
             except LanguageNotSupported:
                 # Activated language is not supported:
                 self.locale = None # reset locale
-                self._context = self.build_context()
+                try:
+                    self._context = self.build_context()
+                except Exception as e:
+                    self.debug(e.message)
+                    # raise
         return self._context
+
+    def context_initialized(self):
+        if self.context is not None:
+            return True
+        return False
 
     def set_access_token(self, token):
         self.access_token = token
@@ -150,7 +161,7 @@ class Translation(object):
 
     def get_language(self):
         """ getter to current language """
-        return self.context.language.locale
+        return self.context_initialized() and self.context.language.locale or django_settings.LANGUAGE_CODE
 
     def activate(self, locale):
         """ Activate selected language

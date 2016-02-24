@@ -6,7 +6,6 @@ from django.http import HttpResponse
 from json import dumps, loads
 from django.views.decorators.csrf import csrf_exempt
 from django_tml import tr, activate, activate_source, deactivate_source
-from django_tml import inline_translations
 from django.contrib.auth import authenticate, login, logout
 from tml.tools.viewing_user import get_viewing_user
 
@@ -22,8 +21,7 @@ def home(request):
                                              'user':user,
                                              'to': to,
                                              'count': count,
-                                             'language': language,
-                                             'inline_tranlations_enabled': inline_translations.enabled})
+                                             'language': language})
 
 
 @csrf_exempt
@@ -44,14 +42,6 @@ def translate(request):
     result = tr(label, data, description)
     deactivate_source() # reset source
     return HttpResponse(dumps({'result': result}))
-
-@csrf_exempt
-def inline_mode(request):
-    if request.POST.get('inline_mode', False):
-        inline_translations.turn_on_for_session()
-    else:
-        inline_translations.turn_off_for_session()
-    return redirect('/')
 
 @csrf_exempt
 def auth(request):
