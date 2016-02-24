@@ -2,12 +2,13 @@ from __future__ import absolute_import
 # encoding: UTF-8
 from django.utils.functional import cached_property
 from django.conf import settings
-from . import activate_source
-from .translator import Translation
-from .utils import cookie_name as get_cookie_name, decode_cookie
 from tml.translator import Translator
 from tml.exceptions import Error
 from tml.logger import get_logger
+from . import activate_source
+from .translator import Translation
+from .utils import cookie_name as get_cookie_name, decode_cookie
+
 
 __author__ = 'a@toukmanov.ru, xepa4ep'
 
@@ -22,8 +23,7 @@ class TmlControllerMiddleware(object):
         self.translation = Translation.instance()
         self.translation.activate_tml(
             source=source,
-            access_token=self.tml_access_token,
-            translator=self.tml_translator)
+            access_token=self.tml_access_token)
         return None
 
     def process_response(self, request, response):
@@ -50,7 +50,7 @@ class TmlControllerMiddleware(object):
     @cached_property
     def tml_translator(self):
         translator_data = self.get_cookie('translator')
-        return translator_data and Translator(self.translation.application, **translator_data) or None
+        return translator_data and Translator(**translator_data) or None
 
     @cached_property
     def tml_access_token(self):

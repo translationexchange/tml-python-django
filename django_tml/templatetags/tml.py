@@ -12,7 +12,6 @@ from django.utils.translation.trans_real import trim_whitespace
 from django_tml import Translation
 from tml import legacy
 from django.templatetags.i18n import BlockTranslateNode as BaseBlockTranslateNode
-from .. import inline_translations
 from tml.translation import Key
 from tml.dictionary import TranslationIsNotExists
 
@@ -93,8 +92,11 @@ class BlockTranslateNode(BaseBlockTranslateNode):
         if self.nowrap:
             # nowrap flag is set
             return text
-        return inline_translations.wrap_string(text, key, translated)
+        return self.wrap_string(text, key, translated)
 
+    def wrap_string(self, text, key, translated):
+        class_name = 'tml_translated' if translated else 'tml_not_translated'
+        return six.u('<tml:label class="tml_translatable %(class_name)s" data-translation_key="%(key)s" data-target_locale="%(locale)s">%(text)s</tml:label>') % ({'key':key.key, 'text':text, 'class_name': class_name, 'locale': Translation.instance().context.locale})
 
 
 class LegacyBlockTranlationNode(BlockTranslateNode):

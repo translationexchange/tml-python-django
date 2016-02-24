@@ -5,7 +5,6 @@ from types import FunctionType
 from django.conf import settings as django_settings
 from django.utils.translation.trans_real import to_locale, templatize, deactivate_all, parse_accept_lang_header, language_code_re, language_code_prefix_re
 from django.utils.translation import LANGUAGE_SESSION_KEY
-from django_tml.cache import CachedClient
 from django.utils.module_loading import import_string
 from tml import configure, build_context
 from tml.application import LanguageNotSupported, Application
@@ -38,26 +37,24 @@ class Translation(object):
     _instance = None
 
     @classmethod
-    def instance(cls):
+    def instance(cls, tml_settings=None):
         """ Singletone
             Returns:
                 Translation
         """
         if cls._instance is None:
-            cls._instance = cls(getattr(django_settings, 'TML', {}))
+            cls._instance = cls(tml_settings or getattr(django_settings, 'TML', {}))
         return cls._instance
 
     def __init__(self, tml_settings):
         self.config = None
         self.locale = None
         self.source = None
-        self.cache = True
         self._context = None
         self._sources = []
         self._supported_locales = None
         self._client = None
         self.used_sources = []
-        self.translator = None
         self.access_token = None
         self.translator = None
         self.init(tml_settings)
@@ -74,16 +71,6 @@ class Translation(object):
     def languages(self):
         return self.application.languages
 
-    def turn_off_cache(self):
-        """ Cache policy: turn off """
-        self.cache = False
-        self.reset_context()
-
-    def turn_on_cache(self):
-        """ Cache policy: turn on """
-        self.cache = True
-        self.reset_context()
-
     def _build_preprocessors(self):
         """ Build translation preprocessors defined at TML_DATA_PREPROCESSORS """
         for include in self.config.get('data_preprocessors', []):
@@ -93,7 +80,7 @@ class Translation(object):
             RenderEngine.env_generators.append(import_string(include))
 
 
-    def build_context(self, access_token=None, translator=None):
+    def build_context(self):
         """ Build context instance for locale
             Args:
                 locale (str): locale name (en, ru)
@@ -102,9 +89,9 @@ class Translation(object):
         """
         return build_context(locale=self.locale,
                              source=self.source,
-                             client=self.build_client(access_token),
-                             use_snapshot=self.use_snapshot)
-
+                             client=self.build_client(self.access_token),
+                             use_snapshot=self.use_snapshot,
+                             translator=self.translator)
 
     @property
     def client(self):
@@ -115,32 +102,28 @@ class Translation(object):
         return self.context.client
 
     def build_client(self, access_token):
-        if self.use_snapshot:
-            # Use snapshot:
-            return CachedClient.wrap(open_snapshot(self.config['cache']['path']))
+        key = self.config.application_key()
+        token = access_token or self.config.application.get('access_token', None)
         if 'api_client' in self.config:
             # Custom client:
             custom_client = self.config['api_client']
             if type(custom_client) is FunctionType:
                 # factory function:
-                return custom_client()
+                return custom_client(key=key, access_token=token)
             elif custom_client is str:
                 # full factory function or class name: path.to.module.function_name
                 custom_client_import = '.'.split(custom_client)
                 module = __import__('.'.join(custom_client[0, -1]))
-                return getattr(module, custom_client[-1])(access_token)
+                return getattr(module, custom_client[-1])(key=key, access_token=token)
             elif custom_client is object:
                 # custom client as is:
                 return custom_client
-        if not self.cache:
-            # No cache:
-            return Client(access_token or self.config['token'])
-        return CachedClient.instance()
+        return Client(key=key, access_token=token)
 
     @property
     def use_snapshot(self):
         cache = self.config.get('cache', {})
-        return cache.get('adapter', None) == 'file' and cache.get('enabled', False)
+        return cache.get('adapter', None) == 'file' and cache.get('enabled', False) and self.config['environment'] == 'test'
 
     @property
     def context(self):
@@ -150,11 +133,11 @@ class Translation(object):
         """
         if self._context is None:
             try:
-                self._context = self.build_context(self.access_token)
+                self._context = self.build_context()
             except LanguageNotSupported:
                 # Activated language is not supported:
                 self.locale = None # reset locale
-                self._context = self.build_context(self.access_token)
+                self._context = self.build_context()
         return self._context
 
     def set_access_token(self, token):

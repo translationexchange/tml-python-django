@@ -15,7 +15,7 @@ from tml.decoration import AttributeIsNotSet
 from tml.translation import Key
 from tml.strings import to_string
 from tml.tools.viewing_user import set_viewing_user
-from django_tml import activate, activate_source, inline_translations, tr,\
+from django_tml import activate, activate_source, tr,\
     deactivate_source
 from django_tml.translator import Translation
 
@@ -32,21 +32,27 @@ def WithSnapshotSettings():
     }
     return TML
 
+def WithDefaultSettings():
+    return {
+        'application': {'key': 'dummy'},
+        'environment': 'test'
+    }
+
 
 class DjangoTMLTestCase(SimpleTestCase):
     """ Tests for django tml tranlator """
     def setUp(self):
         Translation._instance = None # reset settings
-        inline_translations.turn_off()
+        Translation.instance(tml_settings=WithDefaultSettings())
 
     def test_tranlator(self):
-        t = Translation.instance()
+        t = Translation.instance(tml_settings=WithDefaultSettings())
         self.assertEquals(Translation, t.__class__, "Instance returns translator")
         self.assertEquals(t, Translation.instance(), "Singletone")
 
     def test_languages(self):
         """ Language switch """
-        t = Translation.instance()
+        t = Translation.instance(tml_settings=WithDefaultSettings())
         # reset en tranlation:
         en_hello_url = t.client.build_url('translation_keys/90e0ac08b178550f6513762fa892a0ca/translations',
                                           {'locale':'en', 'page': 1})
@@ -66,7 +72,7 @@ class DjangoTMLTestCase(SimpleTestCase):
 
     def test_source(self):
         """ Test languages source """
-        t = Translation.instance()
+        t = Translation.instance(tml_settings=WithDefaultSettings())
         t.activate('ru')
         t.activate_source('index')
         self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
@@ -80,7 +86,7 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
 
     def test_gettext(self):
-        t = Translation.instance()
+        t = Translation.instance(tml_settings=WithDefaultSettings())
         t.activate('ru')
         t.activate_source('index')
         self.assertEqual(to_string('Привет %(name)s'), t.ugettext('Hello {name}'), 'ugettext')
@@ -154,40 +160,8 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEquals(to_string('2 яблока'), t.render(Context({'apples_count':2})),'Plural 2')
         self.assertEquals(to_string('21 яблоко'), t.render(Context({'apples_count':21})),'Plural 21')
 
-    def test_inline(self):
-        """ Inline tranlations wrapper """
-        activate('ru')
-        inline_translations.turn_on()
-        c = Context({'name':'John'})
-        t = Template(to_string('{%load tml %}{% tr %}Hello {name}{% endtr %}'))
-
-        self.assertEquals(to_string('<tml:label class="tml_translatable tml_translated" data-translation_key="90e0ac08b178550f6513762fa892a0ca" data-target_locale="ru">Привет John</tml:label>'),
-                          t.render(c),
-                          'Wrap translation')
-        t = Template(to_string('{%load tml %}{% tr nowrap %}Hello {name}{% endtr %}'))
-        self.assertEquals(to_string('Привет John'),
-                          t.render(c),
-                          'Nowrap option')
-
-        t = Template(to_string('{%load tml %}{% blocktrans %}Hello {name}{% endblocktrans %}'))
-        self.assertEquals(to_string('Привет John'),
-                          t.render(c),
-                          'Nowrap blocktrans')
-
-        t = Template(to_string('{%load tml %}{% tr %}Untranslated{% endtr %}'))
-        self.assertEquals(to_string('<tml:label class="tml_translatable tml_not_translated" data-translation_key="9bf6a924c9f25e53a6b07fc86783bb7d" data-target_locale="ru">Untranslated</tml:label>'),
-                          t.render(c),
-                          'Untranslated')
-        activate('ru')
-        inline_translations.turn_off()
-        t = Template(to_string('{%load tml %}{% tr %}Hello {name}{% endtr %}'))
-        t = Template(to_string('{%load tml %}{% blocktrans %}Hello {name}{% endblocktrans %}'))
-        self.assertEquals(to_string('Привет John'),
-                          t.render(c),
-                          'Turn off inline')
-
     def test_sources_stack(self):
-        t = Translation.instance()
+        t = Translation.instance(tml_settings=WithDefaultSettings())
         self.assertEqual(None, t.source, 'None source by default')
         t.activate_source('index')
         self.assertEqual('index', t.source, 'Use source')
