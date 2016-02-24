@@ -30,13 +30,11 @@ def WithSnapshotSettings():
         'adapter': 'file',
         'path': dirname(settings.FIXTURES_PATH) + '/snapshot.tar.gz'
     }
+    TML['environment'] = 'test'
     return TML
 
 def WithDefaultSettings():
-    return {
-        'application': {'key': 'dummy'},
-        'environment': 'test'
-    }
+    return settings.TML
 
 
 class DjangoTMLTestCase(SimpleTestCase):
@@ -55,11 +53,11 @@ class DjangoTMLTestCase(SimpleTestCase):
         t = Translation.instance(tml_settings=WithDefaultSettings())
         # reset en tranlation:
         en_hello_url = t.client.build_url('translation_keys/90e0ac08b178550f6513762fa892a0ca/translations',
-                                          {'locale':'en', 'page': 1})
+                                          {'locale':'en'})
         t.client.data[en_hello_url] = {'error':'Force error'}
         self.assertEquals(['en', 'id', 'ru'], t.supported_locales)
         self.assertEquals('en', t.get_language(), 'Use default language if not set')
-        self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'}), 'Use fallback tranlation')
+        self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'}))
         t.activate('ru')
         self.assertEquals('ru', t.get_language(), 'Set custom language')
         self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch tranlation')
@@ -196,14 +194,3 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEquals('Mr', tr('honorific'))
         set_viewing_user('female')
         self.assertEquals('Ms', tr('honorific'))
-
-    def test_snapshot_context(self):
-        t = Translation(tml_settings=WithSnapshotSettings())
-        self.assertTrue(t.use_snapshot, 'Use snapshot with settings')
-        t.activate('ru')
-        self.assertEquals('Test', t.context.tr('Test'), 'Stub translation without source')
-        t.activate_source('xxxx')
-        self.assertEquals(to_string('Тест'), t.context.tr('Test'), 'Works with source')
-        t.activate_source('notexists')
-        self.assertEquals(to_string('Test'), t.context.tr('Test'), 'Notexists source')
-

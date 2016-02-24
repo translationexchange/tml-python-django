@@ -14,6 +14,7 @@ from tml import legacy
 from django.templatetags.i18n import BlockTranslateNode as BaseBlockTranslateNode
 from tml.translation import Key
 from tml.dictionary import TranslationIsNotExists
+from tml.session_vars import get_current_translator
 
 register = Library()
 
@@ -95,6 +96,9 @@ class BlockTranslateNode(BaseBlockTranslateNode):
         return self.wrap_string(text, key, translated)
 
     def wrap_string(self, text, key, translated):
+        translator = get_current_translator()
+        if not translator or not translator.is_inline():
+            return text
         class_name = 'tml_translated' if translated else 'tml_not_translated'
         return six.u('<tml:label class="tml_translatable %(class_name)s" data-translation_key="%(key)s" data-target_locale="%(locale)s">%(text)s</tml:label>') % ({'key':key.key, 'text':text, 'class_name': class_name, 'locale': Translation.instance().context.locale})
 

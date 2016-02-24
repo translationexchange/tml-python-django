@@ -50,7 +50,7 @@ USE_L10N = True
 
 FIXTURES_PATH = dirname(BASE_DIR) + '/tests/fixtures/'
 
-def get_client():
+def get_client(key, access_token):
     global FIXTURES_PATH
     return File(FIXTURES_PATH+'/').readdir('')
 
