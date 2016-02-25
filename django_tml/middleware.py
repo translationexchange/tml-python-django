@@ -23,7 +23,8 @@ class TmlControllerMiddleware(object):
         self.translation = Translation.instance()
         self.translation.activate_tml(
             source=source,
-            access_token=self.tml_access_token)
+            access_token=self.tml_access_token,
+            translator=self.tml_translator)
         return None
 
     def process_response(self, request, response):

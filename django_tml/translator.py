@@ -7,7 +7,7 @@ from django.utils.translation.trans_real import to_locale, templatize, deactivat
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.module_loading import import_string
 from tml import configure, build_context
-from tml.application import LanguageNotSupported, Application
+from tml.application import Application
 from tml import Key
 from tml.translation import TranslationOption, OptionIsNotFound
 from tml.legacy import text_to_sprintf, suggest_label
@@ -48,7 +48,6 @@ class Translation(LoggerMixin):
         return cls._instance
 
     def __init__(self, tml_settings):
-        LoggerMixin.__init__(self)
         self.config = None
         self.locale = None
         self.source = None
@@ -60,6 +59,7 @@ class Translation(LoggerMixin):
         self.access_token = None
         self.translator = None
         self.init(tml_settings)
+        LoggerMixin.__init__(self)
 
     def init(self, tml_settings):
         self.config = configure(**tml_settings)
@@ -134,22 +134,9 @@ class Translation(LoggerMixin):
                 Context
         """
         if self._context is None:
-            try:
-                self._context = self.build_context()
-            except LanguageNotSupported:
-                # Activated language is not supported:
-                self.locale = None # reset locale
-                try:
-                    self._context = self.build_context()
-                except Exception as e:
-                    self.debug(e.message)
-                    # raise
-        return self._context
+            self._context = self.build_context()
 
-    def context_initialized(self):
-        if self.context is not None:
-            return True
-        return False
+        return self._context
 
     def set_access_token(self, token):
         self.access_token = token
@@ -161,7 +148,7 @@ class Translation(LoggerMixin):
 
     def get_language(self):
         """ getter to current language """
-        return self.context_initialized() and self.context.language.locale or django_settings.LANGUAGE_CODE
+        return self.context.language.locale
 
     def activate(self, locale):
         """ Activate selected language
@@ -227,7 +214,6 @@ class Translation(LoggerMixin):
         if self._context:
             self._context.deactivate()
         self._context = None
-
 
     def deactivate(self):
         """ Use default locole """
@@ -297,7 +283,8 @@ class Translation(LoggerMixin):
     @property
     def supported_locales(self):
         if self._supported_locales is None:
-            self._supported_locales = [str(locale) for locale in Application.load_default(self.client).supported_locales]
+            self._supported_locales = [str(locale) for locale in self.application.supported_locales]
+        print self._supported_locales
         return self._supported_locales
 
 
