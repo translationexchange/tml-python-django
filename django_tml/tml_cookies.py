@@ -42,4 +42,4 @@ class TmlCookieHandler(LoggerMixin):
         while key_parts and val:
             cur_key = key_parts.pop(0)
             val = val.get(cur_key, default)
-        return val
+        return val or default

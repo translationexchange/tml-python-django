@@ -156,7 +156,6 @@ class Translation(LoggerMixin):
             Args:
                 locale (string): selected locale
         """
-        print 'activate'
         self.locale = locale
         self.reset_context()
 
