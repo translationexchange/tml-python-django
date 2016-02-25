@@ -15,6 +15,7 @@ from tml.api.client import Client
 from tml.api.snapshot import open_snapshot
 from tml.render import RenderEngine
 from tml.logger import LoggerMixin
+from .tml_cookies import TmlCookieHandler
 
 __author__ = 'a@toukmanov.ru, xepa4ep'
 
@@ -155,6 +156,7 @@ class Translation(LoggerMixin):
             Args:
                 locale (string): selected locale
         """
+        print 'activate'
         self.locale = locale
         self.reset_context()
 
@@ -284,7 +286,6 @@ class Translation(LoggerMixin):
     def supported_locales(self):
         if self._supported_locales is None:
             self._supported_locales = [str(locale) for locale in self.application.supported_locales]
-        print self._supported_locales
         return self._supported_locales
 
 
@@ -309,11 +310,12 @@ class Translation(LoggerMixin):
         if hasattr(request, 'session'):
             # for backwards compatibility django_language is also checked (remove in 1.8)
             lang_code = request.session.get(LANGUAGE_SESSION_KEY, request.session.get('django_language'))
-            if self.check_for_language(lang_code):
+            if lang_code is not None:
                 return lang_code
 
-        lang_code = request.COOKIES.get(django_settings.LANGUAGE_COOKIE_NAME)
-        if self.check_for_language(lang_code):
+        cookie_handler = TmlCookieHandler(request, self.application.key)
+        lang_code = cookie_handler.tml_locale
+        if lang_code is not None:
             return lang_code
 
         accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
@@ -322,7 +324,7 @@ class Translation(LoggerMixin):
                 break
             if not language_code_re.search(accept_lang):
                 continue
-            if self.check_for_language(accept_lang):
+            if lang_code is not None:
                 return accept_lang
 
         return self.context.application.default_locale

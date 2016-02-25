@@ -22,32 +22,6 @@
         {% tml_inline_header %}
     </head>
     <body>
-    <div class="container">
-        <div class="col-md-6">
-
-            <form method="post" action="/inline_mode" class="form-inline">
-                <label>
-                    <input type="checkbox" name="inline_mode" {% if inline_tranlations_enabled %}checked{% endif %}/>
-                    inline edit
-                </label>
-                <button type="submit">OK</button>
-            </form>
-        </div>
-        <div class="col-md-6">
-            <form method="post" action="/auth" class="form-inline">
-                <input type="text" class="form-control" name="name" placeholder="name" value="{{viewing_user.value}}" />
-                <select name="gender" class="form-control">
-                    <option value="other" {% if viewing_user.gender = "other" %}selected{% endif %}>other</option>
-                    <option value="male" {% if viewing_user.gender = "male" %}selected{% endif %}>male</option>
-                    <option value="female" {% if viewing_user.gender = "female" %}selected{% endif %}>female</option>
-                </select>
-                <button type="submit" class="btn-default btn">Login</button>
-                {% if viewing_user %}
-                <a href="/auth?logout=1">Exit</a>
-                {% endif %}
-            </form>
-        </div>
-    </div>
 
     <form id="test_tr" method="post" action="/translate" style="padding-bottom: 3em;">
         <div class="container">

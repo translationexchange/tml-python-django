@@ -20,6 +20,7 @@
             if (window.tml_already_initialized) return;
             window.tml_already_initialized = true;
             tml_add_script(window.document, 'tml-agent', '{{ agent_host }}', function() {
+                console.log({{ agent_config|safe }})
                 Trex.init('{{ application_key }}', {{ agent_config|safe }});
               });
         }
