@@ -16,7 +16,7 @@ class TmlInlineNode(Node):
     def render(self, data, nested=False):
         translation = Translation.instance()
         agent_config = dict((k, v) for k, v in translation.config.get('agent', {}).iteritems())
-        agent_host = agent_config.get('host', 'https://tools.translationexchange.com/agent/staging/agent.min.js')
+        agent_host = agent_config.get('host', CONFIG.agent_host())
         if agent_config.get('cache', None):
             t = ts()
             t -= (t % agent_config['cache'])
