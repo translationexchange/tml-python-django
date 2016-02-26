@@ -101,7 +101,8 @@ CACHES = {
 }
 
 TML = {
-    'application': {'key': '80f6dd0ef85061acd56aa71f9cdd77d08bb9d5dd314c1cb8b13a890843b66640'},
+    'environment': 'dev',
+    'application': {'key': '600d6ee64b2c59db3b1244e04ab42c92e50c26459e5e7740ef6a6cc77c76fe34'},
     'monkeypatch': True,
     'cache': {
         'enabled': False,

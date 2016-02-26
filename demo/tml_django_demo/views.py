@@ -16,7 +16,7 @@ def home(request):
     translation.activate(language)
     user = {'gender': request.GET.get('user_gender','male'),'name': request.GET.get('user_name','Вася')}
     to = {'gender': request.GET.get('to_gender','female'),'name': request.GET.get('to_name','Маша')}
-    count = request.GET.get('count', 5)
+    count = request.GET.get('count', 1)
     return render_to_response('index.html', {'viewing_user': get_viewing_user('viewing_user'),
                                              'user':user,
                                              'to': to,
