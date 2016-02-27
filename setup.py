@@ -80,7 +80,8 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'django>=1.7',
-        'six'],
+        'six',
+        '-e git+https://github.com/translationexchange/tml-python.git@07ea53a25e480c82ffde8456e45f78e776eae249#egg=tml-origin_develop'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
