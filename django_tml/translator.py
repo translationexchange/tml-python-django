@@ -159,12 +159,14 @@ class Translation(LoggerMixin):
         self.locale = locale
         self.reset_context()
 
-    def activate_tml(self, source, access_token=None, translator=None):
+    def activate_tml(self, source, access_token=None, translator=None, locale=None):
         if access_token:
             self.set_access_token(access_token)
         if translator:
             self.set_translator(translator)
         self.activate_source(source)
+        if locale:
+            self.activate(locale)
 
     def _use_source(self, source):
         self.source = source
@@ -313,6 +315,7 @@ class Translation(LoggerMixin):
         if hasattr(request, 'session'):
             # for backwards compatibility django_language is also checked (remove in 1.8)
             lang_code = request.session.get(LANGUAGE_SESSION_KEY, request.session.get('django_language'))
+            print lang_code, "hi2"
             if lang_code is not None:
                 return lang_code
 
