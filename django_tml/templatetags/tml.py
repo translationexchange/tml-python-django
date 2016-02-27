@@ -3,7 +3,11 @@
 from __future__ import absolute_import
 from django.template import (Node, Variable, TemplateSyntaxError,
      Library)
-from django.template.base import TokenParser, TOKEN_TEXT, TOKEN_VAR
+from django.template.base import TOKEN_TEXT, TOKEN_VAR
+try:
+    from django.template.base import TokenParser
+except:
+    from django.template.base import Parser as TokenParser
 from django.template.base import render_value_in_context
 from django.template.defaulttags import token_kwargs
 from django.utils import six, translation

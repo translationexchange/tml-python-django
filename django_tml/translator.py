@@ -263,7 +263,11 @@ class Translation(LoggerMixin):
         try:
             option = translation.fetch_option(data, {})
         except OptionIsNotFound:
-            option = self.context.fallback(label, description).fetch_option(data, {})
+            try:
+                option = self.context.fallback(label, description).fetch_option(data, {})
+            except OptionIsNotFound:
+                # Use label if tranlation fault:
+                option = TranslationOption(label = label, language= self.context.language)
 
         # convert {name} -> %(name)s
         return text_to_sprintf(option.label, self.context.language)
