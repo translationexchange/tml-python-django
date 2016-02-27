@@ -30,14 +30,29 @@
                     <h2>Configure</h2>
 <pre>
 TML = {
-    'token': 'API token value',
+    'environment': 'dev',
+    'application': {'key': '600d6ee64b2c59db3b1244e04ab42c92e50c26459e5e7740ef6a6cc77c76fe34'},
     'monkeypatch': True,
-    'cache': 'cache_backend'
+    'cache': {
+        'enabled': False,
+        'adapter': 'file',
+        'path': pj(os.path.dirname(BASE_DIR), 'tests/fixtures/snapshot.tar.gz') },
+    'agent': {
+        'enabled': True,
+        'type':    'agent',
+        'cache':   86400  # timeout every 24 hours
+    },
+    'data_preprocessors': ('tml.tools.list.preprocess_lists',),
+    'env_generators': ('tml.tools.viewing_user.get_viewing_user',),
+    'logger': {
+        'path': pj(BASE_DIR, 'logs', 'tml.log')
+    }
 }
+
 </pre>
                     <dl>
-                        <dt>token</dt>
-                        <dd>Translationexchange API token</dd>
+                        <dt>application.key</dt>
+                        <dd>TranslationExchange key to perform readonly requests to API</dd>
                         <dt>monkeypatch</dt>
                         <dd>Override <a href="https://docs.djangoproject.com/en/1.7/topics/i18n/translation/">django.utils.translation</a> functions</dd>
                         <dt>cache</dt>
@@ -117,10 +132,10 @@ print tr(
                         <tr>
                             <td>
                                 <small>Поддержка всех фич движка</small>
-                                <pre>{&shy;% tr %&shy;}{user} give to {to} {count} apples{&shy;% endtr %&shy;}</pre>
+                                <pre>{&shy;% tr %&shy;}{user} gave {to} {count||apple,apples}{&shy;% endtr %&shy;}</pre>
                             </td>
                             <td>
-                                {% tr %}{user} give to {to} {count} apples{% endtr %}
+                                {% tr %}{user} gave {to} {count||apple,apples}{% endtr %}
                             </td>
                         </tr>
                         <tr>
