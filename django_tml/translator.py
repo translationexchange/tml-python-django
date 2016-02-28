@@ -315,7 +315,6 @@ class Translation(LoggerMixin):
         if hasattr(request, 'session'):
             # for backwards compatibility django_language is also checked (remove in 1.8)
             lang_code = request.session.get(LANGUAGE_SESSION_KEY, request.session.get('django_language'))
-            print lang_code, "hi2"
             if lang_code is not None:
                 return lang_code
 

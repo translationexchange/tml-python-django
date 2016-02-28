@@ -1,4 +1,3 @@
--e .
 -e git+https://github.com/translationexchange/tml-python.git@518e693c5944fad7e04e317b010a308d72a85c91#egg=tml-origin_develop
 coverage==4.0.2
 django-coverage-plugin==1.0
