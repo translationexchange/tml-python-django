@@ -1,4 +1,4 @@
--e git+https://github.com/translationexchange/tml-python.git@85724cd5586fdca2e12fb934fe5a4949099a9f00#egg=tml-origin_develop
+-e git+https://github.com/translationexchange/tml-python.git@8fd2de203dbf27dd425b570761dc8a3061a7f788#egg=tml-origin_develop
 coverage==4.0.2
 django-coverage-plugin==1.0
 flake8==2.5.0
