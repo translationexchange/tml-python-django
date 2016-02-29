@@ -12,3 +12,4 @@ htmlcov/
 te
 *.log
 *.DS_Store
+*.swp

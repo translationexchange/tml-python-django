@@ -69,7 +69,7 @@ class BlockTranslateNode(BaseBlockTranslateNode):
                 label, void = self.render_token_list(self.plural)
         else:
             label, void = self.render_token_list(self.singular)
-        return self.translate(label, data, description)
+        return self.translate(label.strip(), data, description)
 
 
     def translate(self, label, data, description):
