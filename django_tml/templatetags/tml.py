@@ -27,14 +27,17 @@ from tml.rules.engine import Error as EngineError
 from tml.rules.options import Error as OptionsError
 from tml.rules.parser import ParseError
 from tml.decoration import AttributeIsNotSet, UnsupportedTag
+from tml import with_block_options
 
 register = Library()
 
 
-def handle_tml_exception(exc):
+def handle_tml_exception(exc, silent=True):
     if isinstance(exc, (ParseError, InvalidTokenSyntax, DecorationParseError, UnsupportedTag, AttributeIsNotSet, EngineError, OptionsError)):
         msg = "Exception `%s` is raised with message `%s`. For details see stack trace." % (exc.__class__.__name__, str(exc))
-        six.reraise(TemplateSyntaxError, TemplateSyntaxError(msg), sys.exc_info()[2])
+        if not silent: # useful for debugging
+            six.reraise(TemplateSyntaxError, TemplateSyntaxError(msg), sys.exc_info()[2])
+        return ''
 
 
 class TmlStringMixin(object):
@@ -115,7 +118,7 @@ class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
                                    translated)
         except Exception as e:
             self.exception(e)
-            handle_tml_exception(e)
+            return handle_tml_exception(e)
 
 
 class BlockTranslateNode(TmlStringMixin, BaseBlockTranslateNode, LoggerMixin):
@@ -198,7 +201,7 @@ class BlockTranslateNode(TmlStringMixin, BaseBlockTranslateNode, LoggerMixin):
                                    translated)
         except Exception as e:
             self.exception(e)
-            handle_tml_exception(e)
+            return handle_tml_exception(e)
 
 class LegacyBlockTranlationNode(BlockTranslateNode):
     """ Tranlation with back support """
@@ -217,7 +220,19 @@ class LegacyBlockTranlationNode(BlockTranslateNode):
             return legacy.execute(translation, data, {})
         except Exception as e:
             self.exception(e)
-            handle_tml_exception(e)
+            return handle_tml_exception(e)
+
+
+class TmlOptionsNode(Node):
+
+    def __init__(self, nodelist, source=None, **tml_options):
+        self.nodelist = nodelist
+        self.source = source
+
+    def render(self, context):
+        with with_block_options(source=self.source.resolve(context)):
+            output = self.nodelist.render(context)
+        return output
 
 
 @register.tag("tr")
@@ -234,7 +249,7 @@ def do_block_translate(parser, token, legacy = False):
     Additionally, this supports pluralization::
 
         {% tr count count=var|length %}
-        There is {{ count }} object.
+        There is { count } object.
         {% plural %}
         There are {{ count }} objects.
         {% endtr %}
@@ -254,6 +269,9 @@ def do_block_translate(parser, token, legacy = False):
 
     This is equivalent to calling pgettext/npgettext instead of
     (u)gettext/(u)ngettext.
+    {% troptions source=123 %}
+
+    {% endtroptions %}
     """
     bits = token.split_contents()
     close_token = 'endblocktrans' if legacy else 'endtr'
@@ -419,3 +437,55 @@ def do_translate(parser, token):
             )
         seen.add(option)
     return TranslateNode(message_string, asvar=asvar, message_context=message_context, nowrap='nowrap' in seen)
+
+@register.tag('tmlopts')
+def do_tml_options(parser, token):
+    """
+    Enables a given tml options for this block.
+
+    The ``timezone`` argument must be an instance of a ``tzinfo`` subclass, a
+    time zone name, or ``None``. If is it a time zone name, pytz is required.
+    If it is ``None``, the default time zone is used within the block.
+
+    Sample usage::
+
+        {% tmlopts with source="navigation" %}
+            {% trl "hello world" %}
+            {% tr with bar=foo|filter context "greeting" %}
+                This is {{ bar }}.
+            {% endtr %}
+        {% endtmlopts %}
+
+        {% tmlopts with source=var|filter %}
+            ...
+        {% endtmlopts %}
+    """
+    bits = token.split_contents()
+    close_token = ('endtmlopts',)
+    options = {}
+    remaining_bits = bits[1:]
+
+    while remaining_bits:
+        option = remaining_bits.pop(0)
+        if option in options:
+            raise TemplateSyntaxError('The %r option was specified more '
+                                      'than once.' % option)
+        if option == 'with':
+            value = token_kwargs(remaining_bits, parser, support_legacy=True)
+            if not value:
+                raise TemplateSyntaxError('"with" in %r tag needs at least '
+                                          'one keyword argument.' % bits[0])
+        else:
+            raise TemplateSyntaxError(
+                "Unknown argument for '%s' tag: '%s'. The only options "
+                "available are 'noop', 'context' \"xxx\", and 'as VAR'." % (
+                    bits[0], option,
+                )
+            )
+
+        options[option] = value
+
+    tml_options = options.get('with', {})
+    nodelist = parser.parse(close_token)
+    parser.delete_first_token()
+    return TmlOptionsNode(nodelist, **tml_options)

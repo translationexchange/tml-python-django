@@ -20,20 +20,6 @@ def activate_source(source):
 def deactivate_source():
     Translation.instance().deactivate_source()
 
-def enter_source(source):
-    """ Enter source block
-        Args:
-            source (string): source name
-    """
-    Translation.instance().enter_source(source)
-
-def exit_source():
-    """ Exit from source block
-        Args:
-            source (string): source name
-    """
-    Translation.instance().exit_source()
-
 def get_languages():
     return Translation.instance().languages
 
