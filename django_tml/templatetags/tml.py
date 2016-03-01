@@ -478,7 +478,7 @@ def do_tml_options(parser, token):
         else:
             raise TemplateSyntaxError(
                 "Unknown argument for '%s' tag: '%s'. The only options "
-                "available are 'noop', 'context' \"xxx\", and 'as VAR'." % (
+                "available are 'with' and 'as VAR'." % (
                     bits[0], option,
                 )
             )
