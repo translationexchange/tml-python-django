@@ -20,9 +20,21 @@ from django.templatetags.i18n import BlockTranslateNode as BaseBlockTranslateNod
 from tml.translation import Key
 from tml.dictionary import TranslationIsNotExists
 from tml.session_vars import get_current_translator
-
+from tml.logger import LoggerMixin
+from tml.decoration.parser import ParseError as DecorationParseError
+from tml.token import InvalidTokenSyntax
+from tml.rules.engine import Error as EngineError
+from tml.rules.options import Error as OptionsError
+from tml.rules.parser import ParseError
+from tml.decoration import AttributeIsNotSet, UnsupportedTag
 
 register = Library()
+
+
+def handle_tml_exception(exc):
+    if isinstance(exc, (ParseError, InvalidTokenSyntax, DecorationParseError, UnsupportedTag, AttributeIsNotSet, EngineError, OptionsError)):
+        msg = "Exception `%s` is raised with message `%s`. For details see stack trace." % (exc.__class__.__name__, str(exc))
+        six.reraise(TemplateSyntaxError, TemplateSyntaxError(msg), sys.exc_info()[2])
 
 
 class TmlStringMixin(object):
@@ -44,7 +56,7 @@ class TmlStringMixin(object):
         return six.u('<tml:label class="tml_translatable %(class_name)s" data-translation_key="%(key)s" data-target_locale="%(locale)s">%(text)s</tml:label>') % ({'key':key.key, 'text':text, 'class_name': class_name, 'locale': Translation.instance().context.locale})
 
 
-class TranslateNode(TmlStringMixin, BaseTranslateNode):
+class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
     def __init__(self, filter_expression, nowrap = False, asvar=None, message_context=None):
         """ Tag for {% trl %}
             filter_expression (string): translateable string expr
@@ -97,12 +109,16 @@ class TranslateNode(TmlStringMixin, BaseTranslateNode):
             translation = context.fallback(label, description)
             translated = False
 
-        return self.wrap_label(context.render(translation, {}, {}),
-                               translation.key,
-                               translated)
+        try:
+            return self.wrap_label(context.render(translation, {}, {}),
+                                   translation.key,
+                                   translated)
+        except Exception as e:
+            self.exception(e)
+            handle_tml_exception(e)
 
 
-class BlockTranslateNode(TmlStringMixin, BaseBlockTranslateNode):
+class BlockTranslateNode(TmlStringMixin, BaseBlockTranslateNode, LoggerMixin):
 
     def __init__(self, extra_context, singular, plural, countervar, counter, description, trimmed, nowrap = False, legacy = False, asvar=None):
         """ Block for {% tr %} {% endtr %}
@@ -176,10 +192,13 @@ class BlockTranslateNode(TmlStringMixin, BaseBlockTranslateNode):
             translation = context.fallback(label, description)
             translated = False
 
-        return self.wrap_label(context.render(translation, data, {}),
-                               translation.key,
-                               translated)
-
+        try:
+            return self.wrap_label(context.render(translation, data, {}),
+                                   translation.key,
+                                   translated)
+        except Exception as e:
+            self.exception(e)
+            handle_tml_exception(e)
 
 class LegacyBlockTranlationNode(BlockTranslateNode):
     """ Tranlation with back support """
@@ -194,7 +213,11 @@ class LegacyBlockTranlationNode(BlockTranslateNode):
         context = Translation.instance().context
         translation = legacy.fetch(context, label, description)
         # Execute in legacy mode with %(token)s support
-        return legacy.execute(translation, data, {})
+        try:
+            return legacy.execute(translation, data, {})
+        except Exception as e:
+            self.exception(e)
+            handle_tml_exception(e)
 
 
 @register.tag("tr")
