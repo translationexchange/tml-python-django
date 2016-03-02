@@ -9,6 +9,7 @@ try:
 except:
     from django.template.base import Parser as TokenParser
 from django.template.base import render_value_in_context
+from django.template import Template
 from django.template.defaulttags import token_kwargs
 from django.utils import six, translation
 import sys
@@ -61,7 +62,7 @@ class TmlStringMixin(object):
 
 class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
     def __init__(self, filter_expression, nowrap = False, asvar=None, message_context=None):
-        """ Tag for {% trl %}
+        """ Tag for {% trs %}
             filter_expression (string): translateable string expr
             asvar (boolean): render or store in context for reuse
             message_context (string): key description
@@ -76,10 +77,13 @@ class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
         self.nowrap = nowrap
 
     def render(self, context):
+        output = self.filter_expression.resolve(context)
+        if '{{' in output and '}}' in output:
+            output = Template(output).render(context)
+
         description = ''
         if self.message_context:
             description = self.message_context.resolve(context)
-        output = self.filter_expression.resolve(context)
         value = self.translate(self.get_value(output, context), description)
         if self.asvar:
             context[self.asvar] = value
@@ -359,14 +363,14 @@ def do_block_translate_legacy(parser, token):
     return do_block_translate(parser, token, True)
 
 
-@register.tag('trl')
+@register.tag('trs')
 def do_translate(parser, token):
     """This will mark a string for translation and will
     translate the string for the current language.
 
     Usage::
 
-        {% trl "hello world" %}
+        {% trs "hello world" %}
 
     This will mark the string for translation so it will
     be handled by tml register backend and will run the string through the tml translation engine.
@@ -374,7 +378,7 @@ def do_translate(parser, token):
     You can use variables instead of constant strings
     to translate stuff you marked somewhere else::
 
-    {% trl variable %}
+    {% trs variable %}
 
     This will just try to translate the contents of
     the variable ``variable``. Make sure that the string
@@ -382,12 +386,12 @@ def do_translate(parser, token):
 
     It is possible to store the translated string into a variable::
 
-        {% trl "this is a test" as var %}
+        {% trs "this is a test" as var %}
         {{ var }}
 
     Contextual translations are also supported::
 
-        {% trl "this is a test" context "greeting" %}
+        {% trs "this is a test" context "greeting" %}
 
     This is equivalent to calling pgettext instead of (u)gettext."""
     bits = token.split_contents()
@@ -450,7 +454,7 @@ def do_tml_options(parser, token):
     Sample usage::
 
         {% tmlopts with source="navigation" %}
-            {% trl "hello world" %}
+            {% trs "hello world" %}
             {% tr with bar=foo|filter context "greeting" %}
                 This is {{ bar }}.
             {% endtr %}
@@ -489,3 +493,23 @@ def do_tml_options(parser, token):
     nodelist = parser.parse(close_token)
     parser.delete_first_token()
     return TmlOptionsNode(nodelist, **tml_options)
+
+
+@register.tag('source')
+def do_source_tag(parser, token):
+    """
+    Samle usage::
+
+        {% source "navigation" %}
+            ...
+        {% endsource %}
+    """
+    close_token = ('endsource',)
+    bits = token.split_contents()
+    remaining_bits = bits[1:]
+    if len(bits) != 2:
+        raise TemplateSyntaxError("'%r' statement takes one argument" % bits[0])
+    source = parser.compile_filter(bits[1])
+    nodelist = parser.parse(close_token)
+    parser.delete_first_token()
+    return TmlOptionsNode(nodelist, source=source)

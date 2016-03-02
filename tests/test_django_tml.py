@@ -138,7 +138,7 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEquals(to_string('Привет <"Вася">'), t.render(Context({'html':'<"Вася">'})))
 
         Translation.instance().activate_source('index')
-        t = Template('{% load tml %}{% tmlopts with source="navigation" %}{% trl "hello world" %}{% endtmlopts %}')
+        t = Template('{% load tml %}{% tmlopts with source="navigation" %}{% trs "hello world" %}{% endtmlopts %}')
         rv = t.render(Context({}))
         self.assertEquals(rv, 'hello world')
 
