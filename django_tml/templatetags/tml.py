@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 from __future__ import absolute_import
+import re
 from django.template import (Node, Variable, TemplateSyntaxError,
      Library)
 from django.template.base import TOKEN_TEXT, TOKEN_VAR
@@ -8,7 +9,7 @@ try:
     from django.template.base import TokenParser
 except:
     from django.template.base import Parser as TokenParser
-from django.template.base import render_value_in_context
+from django.template.base import render_value_in_context, Token
 from django.template import Template
 from django.template.defaulttags import token_kwargs
 from django.utils import six, translation
@@ -31,6 +32,9 @@ from tml.decoration import AttributeIsNotSet, UnsupportedTag
 from tml import with_block_options
 
 register = Library()
+
+
+RE_VARIABLE = r'.*\{\{\s(\w+)\s\}\}.*'
 
 
 def handle_tml_exception(exc, silent=True):
@@ -78,9 +82,8 @@ class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
 
     def render(self, context):
         output = self.filter_expression.resolve(context)
-        if '{{' in output and '}}' in output:
+        if re.match(RE_VARIABLE, output):
             output = Template(output).render(context)
-
         description = ''
         if self.message_context:
             description = self.message_context.resolve(context)
