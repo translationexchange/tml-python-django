@@ -113,7 +113,7 @@ TML = {
         'type':    'agent',
         'cache':   86400  # timeout every 24 hours
     },
-    'data_preprocessors': ('tml.tools.list.preprocess_lists',),
+    'data_preprocessors': ('tml.tools.list.ListPreprocessor',),
     'env_generators': ('tml.tools.viewing_user.get_viewing_user',),
     'logger': {
         'path': pj(BASE_DIR, 'logs', 'tml.log')

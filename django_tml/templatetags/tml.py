@@ -9,7 +9,7 @@ try:
     from django.template.base import TokenParser
 except:
     from django.template.base import Parser as TokenParser
-from django.template.base import render_value_in_context, Token
+from django.template.base import render_value_in_context, Token, Lexer
 from django.template import Template
 from django.template.defaulttags import token_kwargs
 from django.utils import six, translation
