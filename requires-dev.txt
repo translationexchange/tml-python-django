@@ -1,7 +1,7 @@
--e git+https://github.com/translationexchange/tml-python.git@4a1adc4ac78cff568b2b22c1d3d043b5c44de36e#egg=tml-origin_develop
+pytml==0.1.0
 coverage==4.0.2
 django-coverage-plugin==1.0
-flake8==2.5.0
+flake8==2.5.4
 isort==4.2.2
 mccabe==0.3.1
 pep257==0.7.0
