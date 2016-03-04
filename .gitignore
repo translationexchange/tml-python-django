@@ -13,4 +13,5 @@ te
 *.log
 *.DS_Store
 *.swp
+*.swo
 django_tml
