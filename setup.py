@@ -75,7 +75,7 @@ setup(
     version=version,
 
     description='Django SDK for tranlationexchange.com API',
-    long_description=long_description,
+    long_description=readme,
 
     # The project's main homepage.
     url='https://github.com/pypa/sampleproject',
