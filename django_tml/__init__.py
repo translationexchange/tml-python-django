@@ -4,6 +4,10 @@ from django.utils import translation
 from .translator import Translation
 from django.conf import settings
 
+
+__VERSION__ = '0.1.0'
+
+
 def tr(label, data = None, description = None, options = {}):
     return Translation.instance().context.tr(label, data, description, options)
 

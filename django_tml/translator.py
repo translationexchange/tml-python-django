@@ -360,5 +360,5 @@ class Translation(LoggerMixin):
             return self.context.tr(label, data, description, options)
         except self.config.get('handle', Exception) as e:
             # Use label if tranlation fault:
-            return TranslationOption(label = label, language= self.context.language).execute(data, options)
+            return TranslationOption(label = label, language=self.context.language).execute(data, options)
 

@@ -13,3 +13,4 @@ te
 *.log
 *.DS_Store
 *.swp
+django_tml

@@ -2,9 +2,12 @@ language: python
 sudo: false
 cache: pip
 python:
-  - "2.7"
-  - "3.4"
   - "3.5"
+  - "3.4"
+  - "3.3"
+  - "2.7"
+services:
+  - memcached
 env:
   matrix:
     - DJANGO="Django<1.7,>=1.8"
@@ -17,13 +20,10 @@ matrix:
     - env: DJANGO="-e git+https://github.com/django/django.git@master#egg=Django"
 install:
   - pip install --upgrade pip
-  - pip install -r requirements-dev.txt
+  - pip install -r requires_test.txt
   - pip install $DJANGO
   - pip install --upgrade coveralls
 script:
-  - isort --check-only --recursive --diff .
-  - flake8 --jobs=2 .
-  - pep257 --verbose --explain --source --count django_tml
-  - coverage run --source=django_tml -m 'pytest'
+  - py.test --cov-report term-missing --cov=django_tml tests
 after_success:
   - coveralls

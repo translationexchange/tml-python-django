@@ -4,17 +4,67 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 from __future__ import absolute_import
+from __future__ import absolute_import
 
+import os
+import sys
+import re
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    from distutils.core import setup, find_packages
 # To use a consistent encoding
 from codecs import open
-from os import path
+pj = os.path.join
+dirname = os.path.dirname
+abspath = os.path.abspath
 
-here = path.abspath(path.dirname(__file__))
+
+def get_version(*path):
+    filename = pj(dirname(__file__), *path)
+    version_file = open(filename).read()
+    version_match = re.search(r"^__VERSION__ = (['\"])([^'\"]*)\1",
+                              version_file, re.M)
+    if version_match:
+        groups = version_match.groups()
+        if len(groups) > 1:
+            return version_match.group(2)
+    raise RuntimeError('Unable to find version string.')
+
+version = get_version('django_tml', '__init__.py')
+here = abspath(dirname(__file__))
 
 # Get the long description from the relevant file
-long_description = 'TML SDK for Django web framework'
+
+
+
+if sys.argv[-1] == 'publish':
+    try:
+        import wheel
+    except ImportError:
+        print('Wheel library missing. Please run "pip install wheel"')
+        sys.exit()
+    os.system('python setup.py sdist upload')
+    os.system('python setup.py bdist_wheel upload')
+    sys.exit()
+
+if sys.argv[-1] == 'tag':
+    print("Tagging the version on github:")
+    os.system("git tag -f -a %s -m 'version %s'" % (version, version))
+    os.system("git push --tags --force")
+    sys.exit()
+
+with open(pj(here, 'README.md'), encoding='utf-8') as f:
+    readme = f.read()
+with open(pj(here, 'HISTORY.rst'), encoding='utf-8') as f:
+    history = f.read()
+
+requirements = [
+    'requests==2.7.0',
+    'six==1.10.0'
+]
+
 
 setup(
     name='django-tml',
@@ -22,7 +72,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.3',
+    version=version,
 
     description='Django SDK for tranlationexchange.com API',
     long_description=long_description,
@@ -32,7 +82,7 @@ setup(
 
     # Author details
     author='Translation Exchange, Inc.',
-    author_email='a@toukmanov.ru, xepa4ep',
+    author_email='r.kamun@gmail.com',
 
     # Choose your license
     license='MIT',
@@ -67,21 +117,20 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='sample setuptools development',
+    keywords='tml django-tml translationexchange',
 
     include_package_data = True,
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=('tests', 'te', 'demo')),
+    packages=find_packages(exclude=('tests', 'demo', 'te')),
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'django>=1.7',
-        'six==1.10.0',
-        'pytml==0.1.0'],
+        'pytml[pylibmc]>=0.1.0',
+        'django>=1.7']
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

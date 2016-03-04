@@ -145,12 +145,12 @@ class DjangoTMLTestCase(SimpleTestCase):
         Translation.instance().activate_source('index')
         t = Template('{% load tml %}{% tmlopts with source=navigation %}{% tr %}Hello {name}{% endtr %}{% endtmlopts %}')
         rv = t.render(Context({'navigation': 'nav', 'name': 'Вася'}))
-        self.assertEquals(rv, 'Hello Вася')
+        self.assertEquals(rv, 'Привет Вася')
 
         Translation.instance().activate_source('index')
         t = Template('{% load tml %}{% tmlopts with source=navigation %}{% tmlopts with source=basic %}{% tr %}Hello {name}{% endtr %}{% endtmlopts %}{% endtmlopts %}')
         rv = t.render(Context({'navigation': 'nav', 'basic': 'base', 'name': 'Вася'}))
-        self.assertEquals(rv, 'Hello Вася')
+        self.assertEquals(rv, 'Привет Вася')
         Translation.instance().deactivate_source()
 
     def test_blocktrans(self):
@@ -197,9 +197,9 @@ class DjangoTMLTestCase(SimpleTestCase):
 
     def test_preprocess_data(self):
         activate('ru')
-        self.assertEquals(to_string('Привет Вася and Петя'), tr('Hello {name}', {'name':['Вася','Петя']}))
+        self.assertEquals(to_string('Привет Вася and Петя'), tr('Hello {name}', {'name':['Вася','Петя'], 'last_separator': 'and'}))
         t = Template(to_string('{%load tml %}{% tr %}Hello {name}{% endtr %}'))
-        self.assertEquals(to_string('Привет Вася and Петя'), t.render(Context({'name':['Вася','Петя']})))
+        self.assertEquals(to_string('Привет Вася and Петя'), t.render(Context({'name':['Вася','Петя'], 'last_separator': 'and'})))
 
     def test_viewing_user(self):
         activate('ru')
