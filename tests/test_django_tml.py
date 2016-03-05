@@ -1,5 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-# encoding: UTF-8
+# -*- encoding: utf-8 -*-
 import six
 from os.path import dirname
 from copy import deepcopy
@@ -159,7 +159,7 @@ class DjangoTMLTestCase(SimpleTestCase):
         c = Context({'name':'John'})
 
         t = Template('{%load tml %}{% blocktrans %}Hello {name}{% endblocktrans %}')
-        self.assertEquals(to_string('Привет John'), t.render(c))
+        self.assertEquals(u'Привет John', t.render(c))
 
         t = Template('{%load tml %}{% blocktrans %}Hello {{name}}{% endblocktrans %}')
         self.assertEquals(to_string('Привет John'), t.render(c), 'Use new tranlation')
