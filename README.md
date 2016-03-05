@@ -4,5 +4,5 @@
 
 TML Library for Django
 ==================
-[![Build Status](https://travis-ci.org/translationexchange/tml-pythond-django.png?branch=master)](https://travis-ci.org/translationexchange/tml-python-django)
+[![Build Status](https://travis-ci.org/translationexchange/tml-python-django.png?branch=master)](https://travis-ci.org/translationexchange/tml-python-django)
 [![Coverage Status](https://coveralls.io/repos/translationexchange/tml-python-django/badge.png?branch=master)](https://coveralls.io/r/translationexchange/tml-python-django?branch=master)
