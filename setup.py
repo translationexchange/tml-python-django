@@ -65,7 +65,6 @@ requirements = [
     'six==1.10.0'
 ]
 
-
 setup(
     name='django-tml',
 
@@ -122,14 +121,14 @@ setup(
     include_package_data = True,
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=('tests', 'demo', 'te')),
+    packages=find_packages(exclude=('tests', 'demo', 'te', '.tox')),
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pytml[pylibmc]>=0.1.0',
+        'pytml[pylibmc]>=0.2.1',
         'django>=1.7']
 
     # List additional groups of dependencies here (e.g. development
