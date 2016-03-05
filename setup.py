@@ -20,6 +20,10 @@ pj = os.path.join
 dirname = os.path.dirname
 abspath = os.path.abspath
 
+# need to kill off link if we're in docker builds
+if os.environ.get('PYTHON_BUILD_DOCKER', None) == 'true':
+    del os.link
+
 
 def get_version(*path):
     filename = pj(dirname(__file__), *path)
