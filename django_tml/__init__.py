@@ -5,7 +5,7 @@ from .translator import Translation
 from django.conf import settings
 
 
-__VERSION__ = '0.1.0'
+__VERSION__ = '0.1.1'
 
 
 def tr(label, data = None, description = None, options = {}):
