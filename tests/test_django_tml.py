@@ -13,7 +13,7 @@ from tml.context import SourceContext
 from tml.exceptions import Error
 from tml.decoration import AttributeIsNotSet
 from tml.translation import Key
-from tml.strings import to_string
+#from tml.strings import unicode
 from tml.tools.viewing_user import set_viewing_user
 from django_tml import activate, activate_source, tr,\
     deactivate_source
@@ -57,10 +57,10 @@ class DjangoTMLTestCase(SimpleTestCase):
         t.client.data[en_hello_url] = {'error':'Force error'}
         self.assertEquals(['en', 'id', 'ru'], t.supported_locales)
         self.assertEquals('en', t.get_language(), 'Use default language if not set')
-        self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'}))
+        self.assertEqual(unicode('Hello John'), t.tr('Hello {name}', {'name':'John'}))
         t.activate('ru')
         self.assertEquals('ru', t.get_language(), 'Set custom language')
-        self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch tranlation')
+        self.assertEqual(unicode('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch tranlation')
         t.activate('de')
         self.assertEquals('en', t.get_language(), 'If language is not supported reset to default')
         t.activate('id')
@@ -73,34 +73,34 @@ class DjangoTMLTestCase(SimpleTestCase):
         t = Translation.instance(tml_settings=WithDefaultSettings())
         t.activate('ru')
         t.activate_source('index')
-        self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
+        self.assertEqual(unicode('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
         t.activate_source('alpha')
-        self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'}), 'Use fallback translation')
+        self.assertEqual(unicode('Hello John'), t.tr('Hello {name}', {'name':'John'}), 'Use fallback translation')
         # flush missed keys on change context:
         client = t.context.language.client
         t.activate_source('index')
         self.assertEquals('sources/register_keys', client.url, 'Flush missed keys')
         # handle change:
-        self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
+        self.assertEqual(unicode('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
 
     def test_gettext(self):
         t = Translation.instance(tml_settings=WithDefaultSettings())
         t.activate('ru')
         t.activate_source('index')
-        self.assertEqual(to_string('Привет %(name)s'), t.ugettext('Hello {name}'), 'ugettext')
+        self.assertEqual(unicode('Привет %(name)s'), t.ugettext('Hello {name}'), 'ugettext')
         gettext_result = t.gettext('Hello {name}')
-        self.assertEqual(to_string('Привет %(name)s'), to_string(gettext_result), 'gettext content')
+        self.assertEqual(unicode('Привет %(name)s'), unicode(gettext_result), 'gettext content')
         self.assertEqual(six.text_type, type(gettext_result),'gettext returns str')
         pgettext_result = t.pgettext('Greeting', 'Hi {name}')
-        self.assertEqual(to_string('Здорово %(name)s'), to_string(pgettext_result), 'ugettext')
+        self.assertEqual(unicode('Здорово %(name)s'), unicode(pgettext_result), 'ugettext')
         self.assertEqual(six.text_type, type(pgettext_result),'pgettext returns str')
-        self.assertEquals(to_string('Одно яблоко'), t.ungettext('One apple', '{number} apples', 1), 'ungettext + 1')
-        self.assertEquals(to_string('Одно яблоко'), to_string(t.ngettext('One apple', '{number} apples', 1)), 'ngettext + 1')
+        self.assertEquals(unicode('Одно яблоко'), t.ungettext('One apple', '{number} apples', 1), 'ungettext + 1')
+        self.assertEquals(unicode('Одно яблоко'), unicode(t.ngettext('One apple', '{number} apples', 1)), 'ngettext + 1')
         self.assertEquals(six.text_type, type(t.ngettext('One apple', '{number} apples', 1)), 'ngettext type')
-        self.assertEquals(to_string('%(number)s яблоко'), t.ungettext('One apple', '{number} apples', 21), 'ungettext + 21')
-        self.assertEquals(to_string('%(number)s яблока'), t.ungettext('One apple', '{number} apples', 22), 'ungettext + 22')
-        self.assertEquals(to_string('%(number)s яблок'), t.ungettext('One apple', '{number} apples', 5), 'ungettext + 5')
-        self.assertEquals(to_string('%(number)s яблок'), to_string(t.ngettext('One apple', '{number} apples', 12)), 'ngettext + 12')
+        self.assertEquals(unicode('%(number)s яблоко'), t.ungettext('One apple', '{number} apples', 21), 'ungettext + 21')
+        self.assertEquals(unicode('%(number)s яблока'), t.ungettext('One apple', '{number} apples', 22), 'ungettext + 22')
+        self.assertEquals(unicode('%(number)s яблок'), t.ungettext('One apple', '{number} apples', 5), 'ungettext + 5')
+        self.assertEquals(unicode('%(number)s яблок'), unicode(t.ngettext('One apple', '{number} apples', 12)), 'ngettext + 12')
 
     def test_format_attributes(self):
         t = Template('{% load tml %}{% tr %}[link]Hello[/link]{% endtr %}')
@@ -120,7 +120,7 @@ class DjangoTMLTestCase(SimpleTestCase):
         activate('ru')
         t = Template('{%load tml %}{% tr %}Hello {name}{% endtr %}')
         c = Context({'name':'John'})
-        self.assertEquals(to_string('Привет John'), t.render(c))
+        self.assertEquals(unicode('Привет John'), t.render(c))
         t = Template(
         '''
         {%load tml %}
@@ -128,14 +128,14 @@ class DjangoTMLTestCase(SimpleTestCase):
             Hello {name}
         {% endtr %}
         ''')
-        self.assertEquals(to_string('''Привет John'''), t.render(c).strip(), 'Trimmed support')
-        t = Template(to_string('{%load tml %}{% tr with name="Вася" %}Hello {name}{% endtr %}'))
-        self.assertEquals(to_string('Привет Вася'), t.render(c), 'With syntax')
+        self.assertEquals(unicode('''Привет John'''), t.render(c).strip(), 'Trimmed support')
+        t = Template(unicode('{%load tml %}{% tr with name="Вася" %}Hello {name}{% endtr %}'))
+        self.assertEquals(unicode('Привет Вася'), t.render(c), 'With syntax')
 
         t = Template('{%load tml %}{% tr %}Hello {name}{% endtr %}')
-        self.assertEquals(to_string('Привет &lt;&quot;Вася&quot;&gt;'), t.render(Context({'name':'<"Вася">'})))
-        t = Template(to_string('{%load tml %}{% tr with html|safe as name %}Hello {name}{% endtr %}'))
-        self.assertEquals(to_string('Привет <"Вася">'), t.render(Context({'html':'<"Вася">'})))
+        self.assertEquals(unicode('Привет &lt;&quot;Вася&quot;&gt;'), t.render(Context({'name':'<"Вася">'})))
+        t = Template(unicode('{%load tml %}{% tr with html|safe as name %}Hello {name}{% endtr %}'))
+        self.assertEquals(unicode('Привет <"Вася">'), t.render(Context({'html':'<"Вася">'})))
 
         Translation.instance().activate_source('index')
         t = Template('{% load tml %}{% tmlopts with source="navigation" %}{% trs "hello world" %}{% endtmlopts %}')
@@ -159,18 +159,18 @@ class DjangoTMLTestCase(SimpleTestCase):
         c = Context({'name':'John'})
 
         t = Template('{%load tml %}{% blocktrans %}Hello {name}{% endblocktrans %}')
-        self.assertEquals(to_string('Привет John'), t.render(c))
+        self.assertEquals(unicode('Привет John'), t.render(c))
 
         t = Template('{%load tml %}{% blocktrans %}Hello {{name}}{% endblocktrans %}')
-        self.assertEquals(to_string('Привет John'), t.render(c), 'Use new tranlation')
+        self.assertEquals(unicode('Привет John'), t.render(c), 'Use new tranlation')
 
         # t = Template('{%load tml %}{% blocktrans %}Hey {{name}}{% endblocktrans %}')
-        # self.assertEquals(to_string('Эй John, привет John'), t.render(c), 'Use old tranlation')
+        # self.assertEquals(unicode('Эй John, привет John'), t.render(c), 'Use old tranlation')
 
         t = Template('{%load tml %}{% blocktrans count count=apples_count %}One apple{% plural %}{count} apples{% endblocktrans %}')
-        self.assertEquals(to_string('Одно яблоко'), t.render(Context({'apples_count':1})),'Plural one')
-        self.assertEquals(to_string('2 яблока'), t.render(Context({'apples_count':2})),'Plural 2')
-        self.assertEquals(to_string('21 яблоко'), t.render(Context({'apples_count':21})),'Plural 21')
+        self.assertEquals(unicode('Одно яблоко'), t.render(Context({'apples_count':1})),'Plural one')
+        self.assertEquals(unicode('2 яблока'), t.render(Context({'apples_count':2})),'Plural 2')
+        self.assertEquals(unicode('21 яблоко'), t.render(Context({'apples_count':21})),'Plural 21')
 
     # def test_sources_stack(self):
     #     t = Translation.instance(tml_settings=WithDefaultSettings())
@@ -197,9 +197,9 @@ class DjangoTMLTestCase(SimpleTestCase):
 
     def test_preprocess_data(self):
         activate('ru')
-        self.assertEquals(to_string('Привет Вася and Петя'), tr('Hello {name}', {'name':['Вася','Петя'], 'last_separator': 'and'}))
-        t = Template(to_string('{%load tml %}{% tr %}Hello {name}{% endtr %}'))
-        self.assertEquals(to_string('Привет Вася and Петя'), t.render(Context({'name':['Вася','Петя'], 'last_separator': 'and'})))
+        self.assertEquals(unicode('Привет Вася and Петя'), tr('Hello {name}', {'name':['Вася','Петя'], 'last_separator': 'and'}))
+        t = Template(unicode('{%load tml %}{% tr %}Hello {name}{% endtr %}'))
+        self.assertEquals(unicode('Привет Вася and Петя'), t.render(Context({'name':['Вася','Петя'], 'last_separator': 'and'})))
 
     def test_viewing_user(self):
         activate('ru')
