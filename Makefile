@@ -40,7 +40,7 @@ docs:
 	sphinx-apidoc -o docs/source django_tml
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
-	open docs/_build/html/index.html
+	open docs/build/html/index.html
 
 release: clean
 	python setup.py sdist upload

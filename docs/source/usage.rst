@@ -23,7 +23,7 @@ Here is minimal configuration::
           'enabled': True,
           'adapter': 'memcached',
           'backend': 'pylibmc',
-          'namespace': 'foody'
+          'namespace': 'dummy'
       },
       # 'cache': {
       #     'enabled': True,
@@ -54,8 +54,8 @@ Explanation:
  * ``cache`` - Define your cache configuration here. More about cache in advanced section.
  * ``agent`` - Agent helps your application to download JS SDK on initial load of your page and then use TML widgets, shortcuts and SDK in client-side.
  * ``data_preprocessors`` - Preprocessors applied on translateable string before actual processing. For example ``list`` preprocessors preprocess list like context variable into meaningful text token.
- * ``env_generators`` - Sometime you do not need to provide substitution token variable. For example, ``viewing_user`` env generator could be substituted by the return value of env generator. By default we return ``request.user``.
- * ``logger`` - TML log.
+ * ``env_generators`` - Sometimes you do not need to provide substitution token variable. For example, ``viewing_user`` env generator could be substituted by the return value of env generator. By default we return ``request.user``.
+ * ``logger`` - TML log that tracks interaction with SDK by http and supressed exceptions while translating string.
 
 
 .. note:: ``env_generators`` and ``data_preprocessors`` are configured by default.
