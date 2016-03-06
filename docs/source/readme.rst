@@ -59,6 +59,9 @@ Tml is configured. Now you can translate your first string::
 
     <title>{% trs "TML is awesome" %}</title>
 
+You can add language switcher into your navigation layout:
+
+{% tml_language_selector type="sideflags" %}
 
 Credits
 ---------

@@ -59,3 +59,19 @@ def tml_inline_footer(parser, token):
 @register.tag("activate_tml_inline")
 def activate_tml_inline(parser, token):
     return TmlInlineHeader()
+
+@register.inclusion_tag("django_tml/inline_translations/language_selector.html")
+def tml_language_selector(type=None, opts=None):
+    translation = Translation.instance()
+    opts = opts or {}
+    if not type:
+        type = 'default'
+    if type == 'dropdown':
+        type = 'select'
+    opts = [
+        "data-tml-{}='{}'".format(key, val)
+        for key, val in opts.iteritems()]
+    return {
+        "opts": " ".join(opts),
+        "type": type
+    }
