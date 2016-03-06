@@ -63,6 +63,7 @@ You can add language switcher into your navigation layout to test translations a
 
     {% tml_language_selector type="sideflags" %}
 
+
 Credits
 ---------
 

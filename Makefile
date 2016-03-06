@@ -36,11 +36,11 @@ coverage:
 	py.test --cov-report term-missing --cov=django_tml tests
 
 docs:
-	rm -r -f docs/*
-	sphinx-apidoc -o docs/ django_tml
+	rm -rf docs/build
+	sphinx-apidoc -o docs/source django_tml
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
-	open docs/_build/html/index.html
+	open docs/build/html/index.html
 
 release: clean
 	python setup.py sdist upload
