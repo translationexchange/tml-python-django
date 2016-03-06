@@ -2,12 +2,6 @@
 django-tml
 =============================
 
-..     :target: https://travis-ci.org/yunmanger1/django-getpaid-epay
-
-TML library for Django
-
-.. image:: https://avatars0.githubusercontent.com/u/1316274?v=3&s=200
-
 Documentation
 -------------
 
@@ -35,6 +29,9 @@ Install using pip::
 
 Add ``django_tml`` to ``INSTALLED_APPS`` and ``django_tml.middleware.TmlControllerMiddleware`` to your ``MIDDLEWARE_CLASSES``. Do not forget to configure the ``TML`` setting. Here is the minimal configuration to start using TML with cache::
 
+    import os
+    ...
+
     TML = {
         'environment': 'dev',
         'application': {'key': '#key'},
@@ -45,7 +42,7 @@ Add ``django_tml`` to ``INSTALLED_APPS`` and ``django_tml.middleware.TmlControll
              'version': '...',
         },
         'logger': {
-            'path': pj(BASE_DIR, 'logs', 'tml.log')
+            'path': os.path.join(BASE_DIR, 'logs', 'tml.log')
         }
     }
 
