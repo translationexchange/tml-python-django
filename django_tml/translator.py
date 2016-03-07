@@ -69,6 +69,10 @@ class Translation(LoggerMixin):
         return self.context.application
 
     @property
+    def application_key(self):
+        return self.config.application_key()
+
+    @property
     def languages(self):
         return self.application.languages
 
@@ -89,7 +93,7 @@ class Translation(LoggerMixin):
                 Context
         """
         return build_context(locale=self.locale,
-                             source=self.source,
+                             source=self.source,  # todo:
                              client=self.build_client(self.access_token),
                              use_snapshot=self.use_snapshot,
                              translator=self.translator)
@@ -103,23 +107,22 @@ class Translation(LoggerMixin):
         return self.context.client
 
     def build_client(self, access_token):
-        key = self.config.application_key()
         token = access_token or self.config.application.get('access_token', None)
         if 'api_client' in self.config:
             # Custom client:
             custom_client = self.config['api_client']
             if type(custom_client) is FunctionType:
                 # factory function:
-                return custom_client(key=key, access_token=token)
+                return custom_client(key=self.application_key, access_token=token)
             elif custom_client is str:
                 # full factory function or class name: path.to.module.function_name
                 custom_client_import = '.'.split(custom_client)
                 module = __import__('.'.join(custom_client[0, -1]))
-                return getattr(module, custom_client[-1])(key=key, access_token=token)
+                return getattr(module, custom_client[-1])(key=self.application_key, access_token=token)
             elif custom_client is object:
                 # custom client as is:
                 return custom_client
-        return Client(key=key, access_token=token)
+        return Client(key=self.application_key, access_token=token)
 
     @property
     def use_snapshot(self):
@@ -147,7 +150,9 @@ class Translation(LoggerMixin):
 
     def get_language(self):
         """ getter to current language """
-        return self.context.language.locale
+        if self._context:  # if not activated then use
+            return self.context.language.locale
+        return django_settings.LANGUAGE_CODE
 
     def activate(self, locale):
         """ Activate selected language
@@ -287,7 +292,7 @@ class Translation(LoggerMixin):
             if lang_code is not None:
                 return lang_code
 
-        cookie_handler = TmlCookieHandler(request, self.application.key)
+        cookie_handler = TmlCookieHandler(request, self.application_key)
         lang_code = cookie_handler.tml_locale
         if lang_code is not None:
             return lang_code

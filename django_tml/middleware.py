@@ -17,7 +17,7 @@ class TmlControllerMiddleware(object):
         source = '%s.%s' % (view_func.__module__, view_func.__name__)
         self.translation = Translation.instance()
         locale = self.translation.get_language_from_request(request, True)
-        cookie_handler = TmlCookieHandler(request, self.translation.application.key)
+        cookie_handler = TmlCookieHandler(request, self.translation.application_key)
         self.translation.activate_tml(
             source=source,
             access_token=cookie_handler.tml_access_token,
