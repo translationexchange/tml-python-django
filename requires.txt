@@ -1,2 +1,2 @@
 django>=1.7
--e git+ssh://git@github.com/translationexchange/tml-python.git@develop#egg=python-tml
+tml
