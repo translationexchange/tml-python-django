@@ -134,7 +134,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pytml[pylibmc]>=0.2.1',
+        'tml[pylibmc]>=0.2.1',
         'django>=1.7']
 
     # List additional groups of dependencies here (e.g. development
