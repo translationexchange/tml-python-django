@@ -1,2 +1,2 @@
-pytml[pylibmc]>=0.2.2
 django>=1.7
+-e git+ssh://git@github.com/translationexchange/tml-python-django.git@develop#egg=django_tml
