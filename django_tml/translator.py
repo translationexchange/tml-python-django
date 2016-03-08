@@ -150,9 +150,7 @@ class Translation(LoggerMixin):
 
     def get_language(self):
         """ getter to current language """
-        if self._context:  # if not activated then use
-            return self.context.language.locale
-        return django_settings.LANGUAGE_CODE
+        return self.locale or django_settings.LANGUAGE_CODE
 
     def activate(self, locale):
         """ Activate selected language

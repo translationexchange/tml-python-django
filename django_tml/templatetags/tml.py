@@ -87,7 +87,10 @@ class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
         description = ''
         if self.message_context:
             description = self.message_context.resolve(context)
-        value = self.translate(self.get_value(output, context), description)
+        value = self.get_value(output, context)
+        if not value:  # empty value
+            return ''
+        value = self.translate(value, description)
         if self.asvar:
             context[self.asvar] = value
             return ''
