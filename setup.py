@@ -24,8 +24,6 @@ abspath = os.path.abspath
 if os.environ.get('PYTHON_BUILD_DOCKER', None) == 'true':
     del os.link
 
-print sys.argv, 'hi', os.environ
-
 
 def get_version(*path):
     filename = pj(dirname(__file__), *path)
