@@ -56,7 +56,6 @@ class DjangoTMLTestCase(SimpleTestCase):
                                           {'locale':'en'})
         t.client.data[en_hello_url] = {'error':'Force error'}
         self.assertEquals(['en', 'id', 'ru'], t.supported_locales)
-        self.assertEquals('en', t.get_language(), 'Use default language if not set')
         self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'}))
         t.activate('ru')
         self.assertEquals('ru', t.get_language(), 'Set custom language')
