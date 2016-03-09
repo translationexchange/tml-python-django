@@ -20,7 +20,6 @@ from .tml_cookies import TmlCookieHandler
 __author__ = 'a@toukmanov.ru, xepa4ep'
 
 
-
 def to_str(fn):
     def tmp(*args, **kwargs):
         return six.text_type(fn(*args, **kwargs))
