@@ -61,7 +61,7 @@ class TmlStringMixin(object):
         # 2. if translation came and has flag (attribute) `locked` => tml_locked
         # 3. see ruby decorators/html.rb
         class_name = 'tml_translated' if translated else 'tml_not_translated'
-        return six.u('<tml:label class="tml_translatable %(class_name)s" data-translation_key="%(key)s" data-target_locale="%(locale)s">%(text)s</tml:label>') % ({'key':key.key, 'text':text, 'class_name': class_name, 'locale': Translation.instance().context.locale})
+        return six.u('<tml:label class="tml_translatable %(class_name)s" data-translation_key="%(key)s" data-target_locale="%(locale)s">%(text)s</tml:label>') % ({'key':key.key, 'text':text, 'class_name': class_name, 'locale': Translation.instance().locale})
 
 
 class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
