@@ -1,0 +1,16 @@
+@import "bootstrap.css";
+
+body {
+  padding-top: 60px;
+  padding-bottom: 40px;
+}
+
+.hr {
+    background: url(/static/images/hr.png) center center no-repeat;
+    text-align: center;
+}
+
+.text-center {
+    text-align: center;
+}
+

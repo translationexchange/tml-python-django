@@ -1,0 +1,9 @@
+*.pyc
+*.pyc
+*.pyo
+*.so
+*.class
+*.log
+.DS_Store
+te
+logs

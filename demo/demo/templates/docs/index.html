@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load i18n %}
+{% load tml %}
+{% load tml_inline %}
+
+{% block content %}
+    <style>
+        h3 span {
+            background:#FFF;
+            padding:5px 15px 5px 15px;
+        }
+    </style>
+
+    <div class="hero-unit">
+      <div class="text-center">
+          <img class="trex_logo" src="" alt="" />
+          <br><br>
+        </div>
+        <h2 class="text-center">
+          {% trs "Welcome to Tml For Django Python" %}
+        </h2>
+        <p class="text-center">
+            {% trs "Tml for Django Python is a library that allows Django based applications to integrate with the Translation Exchange crowd-sourced translation platform." %}
+            {% trs "This sample application demonstrates some of Tml's capabilities." %}
+        </p>
+        <br>
+            <p class="text-center">
+                <a href="https://dashboard.translationexchange.com/signup" class="btn btn-large">{% trs "Sign up to get started now!" %}</a>
+            </p>
+    </div>
+
+    <h3 class="hr strong"><span>{% trs "How It Works" %}</span></h3>
+
+    <div class="row">
+        <div class="span4">
+            <p class="text-center"><img src="{% static 'images/how_it_works_1.gif' %}"/></p>
+            <h4 class="text-center">{% trs "Use your users" %}</h4>
+            <p>{% trs "Your multilngual users can sign up to help translate your site into over 270 different languages." %} {% trs "Their translations can then be viewed and voted on by other users." %}</p>
+        </div>
+        <div class="span4">
+            <p class="text-center"><img src="{% static 'images/how_it_works_2.gif' %}"/></p>
+            <h4 class="text-center">{% trs "Share translations" %}</h4>
+            <p>{% trs "Translations from your site get synced to our servers and can then be shared with thousands of other websites." %}</p>
+        </div>
+        <div class="span4">
+            <p class="text-center"><img src="{% static 'images/how_it_works_3.gif' %}"/></p>
+            <h4 class="text-center">{% trs "Get what you give" %}</h4>
+            <p>{% trs "Regularly pull down new translations from not only your users but users of other websites as you sync your translations." %}</p>
+        </div>
+    </div>
+
+    <h3 class="hr strong"><span>{% trs "Features" %}</span></h3>
+
+    <div class="row">
+        <div class="span4">
+            <h4>{% trs "Support for over 250 languages" %}</h4>
+            <p>{% trs "All browser supported language are included. Just choose which languages you want to enabled on your app." %}</p>
+        </div>
+        <div class="span4">
+            <h4>{% trs "Inline translation tools" %}</h4>
+            <p>{% trs "Intuitive translation tools allow your users to easily translate your website." %}</p>
+        </div>
+        <div class="span4">
+            <h4>{% trs "Translation management" %}</h4>
+            <p>{% trs "Keep track of all the translated text on your website, through an easy to use dashboard." %}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span4">
+            <h4>{% trs "Translation ranking system" %}</h4>
+            <p>{% trs "Translators vote on translations and the best translations are used in your application." %}</p>
+        </div>
+        <div class="span4">
+            <h4>{% trs "Translator ranking system" %}</h4>
+            <p>{% trs "Translators are ranked based on the quality of the work they do. The higher the rank the more valuable they become." %}</p>
+        </div>
+        <div class="span4">
+            <h4>{% trs "Powerful Metrics" %}</h4>
+            <p>{% trs "Stay up to date on the progress of your translations." %}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span4">
+            <h4>{% trs "Translation Markup Language" %}</h4>
+            <p>{% trs "TML syntax makes developers happy - it simplifies the code and allows to encode complex rules using simple structures." %}</p>
+        </div>
+        <div class="span4">
+            <h4>{% trs "Language Context Rules" %}</h4>
+            <p>{% trs "Tml supports all language rules to make translations very accurate." %}</p>
+        </div>
+        <div class="span4">
+            <h4>{% trs "Language Cases" %}</h4>
+            <p>{% trs "Language cases are supported across all languages to make translations sound as native as they can be." %}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span4">
+            <h4>{% trs "Glossary" %}</h4>
+            <p>{% trs "Create a glossary of the key terms of your application. Translators will see those terms and will be able to provide more accurate translations." %}</p>
+        </div>
+        <div class="span4">
+            <h4>{% trs "Language Discussion Boards" %}</h4>
+            <p>{% trs "Translators can discuss translations and terms in the message boards across all languages." %}</p>
+        </div>
+        <div class="span4">
+            <h4>{% trs "Admin Tools" %}</h4>
+            <p>{% trs "Administration tools allow you to configure every aspect of your application." %}</p>
+        </div>
+    </div>
+
+    <hr>
+{% endblock %}

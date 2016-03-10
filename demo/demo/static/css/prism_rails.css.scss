@@ -1,0 +1,42 @@
+pre {
+    margin-bottom: 30px;
+    border-radius: 3px;
+    overflow: auto;
+    font: 13px/1.3 Monaco, monospace;
+    text-shadow: 0 1px 1px rgba(#000, .7);
+    background: #333;
+    color: #fff;
+    padding: 20px;
+    .comment { color: #aeaeae }
+}
+
+.language-html {
+    .attr-value { color: #a0ffe1 }
+    .punctuation, .doctype, .tag { color: #a0cbff }
+}
+
+.language-css {
+    color: #a0ffe1;
+    .punctuation, .selector { color: #fff }
+    .property { color: #a0cbff }
+}
+
+.language-javascript, .language-coffee {
+    .string, .number { color: #a0ffe1 }
+    .keyword, .type, .class, .var { color: #a0cbff }
+}
+
+.language-ruby {
+    .string, .symbol { color: #a0ffe1 }
+    .namespace, .const { color: #a0cbff }
+}
+
+.language-haml {
+    .string, .symbol { color: #a0ffe1 }
+    .tag, .rails, .var { color: #a0cbff }
+}
+
+.language-shell {
+    background: #191919;
+    color: #84ff95;
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+{% load staticfiles %}
+{% load i18n %}
+{% load tml %}
+{% load tml_inline %}
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html>
+<head>
+    <title>{% trs "Django Tml Documentation" %}</title>
+    <link rel="SHORTCUT ICON" href="/favicon.ico?t=<%=Time.now.to_i%>"/>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" media="all" href="{% static 'css/application.css' %}" />
+    <script src="{% static 'js/jquery191.js' %}"></script>
+    <script src="{% static 'js/jquery-ui-1.10.3.custom.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.js' %}"></script>
+    <script src="{% static 'js/chosen.jquery.js' %}"></script>
+    <script src="{% static 'js/application.js' %}"></script>
+    {% tml_inline_header %}
+</head>
+<body>
+      <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container">
+            <a class="brand" href="/">
+              <span class="h3">{% tr %}Tml For Django Python{% endtr %}</span>
+            </a>
+
+            <ul class="nav">
+              <li {% if '/docs' in request.path  %}class="active"{% endif %}><a href="/docs/">{% tr %}Documentation & Samples{% endtr %}</a></li>
+              <li {% if '/console' in request.path  %}class="active"{% endif %}><a href="/console/">{% tr %}TML Interactive Console{% endtr %}</a></li>
+            </ul>
+
+            <div class="navbar-right navbar-text pull-right">
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    <!-- <div class="container">
+        <% if flash[:trfn] %>
+          <div id="flash_notice">
+            <div class="alert alert-success strong">
+              <%=link_to("×", '#', :onclick => "$('#flash_notice').hide(); return false;", :class => "close") %>
+              <%= flash[:trfn] %>
+            </div>
+            <%flash[:trfn] = nil%>
+          </div>
+        <% end %>
+
+        <% if flash[:trfe] %>
+          <div id="flash_error">
+            <div class="alert alert-danger strong">
+              <%=link_to("×", '#', :onclick => "$('#flash_error').hide();return false;", :class => "close") %>
+              <%= flash[:trfe] %>
+            </div>
+            <%flash[:trfe] = nil%>
+          </div>
+        <% end %>
+
+        <% if flash[:trfw] %>
+          <div id="flash_warning">
+            <div class="alert strong">
+              <%=link_to("×", '#', :onclick => "$('#flash_warning').hide();return false;", :class => "close") %>
+              <%= flash[:trfw] %>
+            </div>
+            <%flash[:trfw] = nil%>
+          </div>
+        <% end %>
+
+        <noscript>
+          <div class="flash_error alert danger">
+            <%=tr("This site requires JavaScript! Please enable JavaScript in your browser's settings to use this part of the site.")%>
+          </div>
+        </noscript> -->
+    </div>
+
+
+    <script>
+      $(function () {
+        $('#user_menu_trigger').dropdown();
+      });
+    </script>
+    <div class="container">
+        {% block content %}
+
+        {% endblock %}
+    </div>
+    <style>
+      #navlist li {
+        display: inline;
+        list-style-type: none;
+        padding-right: 10px;
+      }
+    </style>
+
+    <footer>
+      <div class='container'>
+        <ul id='navlist' style='float:right;'>
+            <li><a class="quiet" href="http://translationexchange.com/docs">{% tr %}Documentation{% endtr %}</a></li>
+            <li><a class="quiet" href="https://github.com/translationexchange/tml-rails">{% tr %}Source{% endtr %}</a></li>
+            <li><a class="quiet" href="http://www.facebook.com/translationexchange">{% tr %}Facebook{% endtr %}</a></li>
+            <li><a class="quiet" href="https://twitter.com/translationx">{% tr %}Twitter{% endtr %}</a></li>
+        </ul>
+
+        &copy; 2016 <a class="quiet" href="http://translationexchange.com">Translation Exchange, Inc</a>
+      </div>
+    </footer>
+</body>
+</html>

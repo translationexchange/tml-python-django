@@ -1,0 +1,960 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load doc %}
+{% load i18n %}
+{% load tml tml_inline %}
+{% block stylesheets %}
+{{ block.super }}
+
+{% endblock %}
+{% block content %}
+    <div style="background:white;padding-top:10px;margin-bottom:20px; border-radius:10px;">
+        <div class="row">
+
+            <div class="span3">
+              <div id="toc"></div>
+            </div>
+            <div class="span9">
+            <div class="hero-unit" style="margin-right:10px;">
+              <div class="text-center">
+                <img class="trex_logo" src="" alt="" />
+              </div>
+              <h2 class="text-center">{% trs "Documentation & Samples" %}</h2>
+            </div>
+
+            <h1>{% trs "Introduction" %}</h1>
+            <p>
+              {% trs "This document demonstrates how to use TML (Translation Markup Language) in a Django application." %}
+            </p>
+
+            <h2>{% trs "Integration" %}</h2>
+
+            <p>
+              {% trs "Installing using [bold: pip]:" %}
+            </p>
+
+            <pre><code class="language-ruby">pip install django_tml</code></pre>
+
+            <p>
+              {% trs "Add 'django_tml' to your INSTALLED_APPS setting:" %}
+            </p>
+
+            <pre><code class="language-ruby">
+INSTALLED_APPS = (
+    ...
+    'django_tml',
+)
+            </code></pre>
+            <p>
+              {% trs "Add tml middleware to MIDDLEWARE_CLASSES setting:" %}
+            </p>
+
+            <pre><code class="language-ruby">
+MIDDLEWARE_CLASSES = (
+  ...
+  'django_tml.middleware.TmlControllerMiddleware',
+)
+            </code></pre>
+
+            {% tr %}Finally add the following TML configuraiton to setting file:{% endtr %}
+
+            <pre><code class="language-ruby">
+TML = {
+    'environment': 'dev',
+    'application': {'key': '80f6dd0ef85061acd56aa71f9cdd77d08bb9d5dd314c1cb8b13a890843b66640'},
+    'monkeypatch': True,   # support legacy translations
+    'cache': {
+         'enabled': True,
+         'adapter': 'memcached',
+         'backend': 'pylibmc',
+         'namespace': 'foody'
+    },
+    'data_preprocessors': ('tml.tools.list.preprocess_lists',),
+    'env_generators': ('tml.tools.viewing_user.get_viewing_user',),
+    'logger': {
+        'path': pj(BASE_DIR, 'logs', 'tml.log')
+    }
+}</code></pre>
+            <p>{% trs "Before to start using tml template tags and filters, add the following code in the head of your template file:" %}</p>
+            <pre><code class="language-ruby">
+{&shy;% load i18n %&shy;}
+{&shy;% load tml tml_inline %&shy;}
+            </code></pre>
+            <p>
+              {% trs "In the [bold: head] section of your layout, add&#58;" %}
+            </p>
+
+            <pre><code class="language-ruby">
+{&shy;% tml_inline_header %&shy;}</code></pre>
+            <p>{% trs "You are done, tml is now running in your app." %}</p>
+<!--
+            <p>{% trs "Now you can simply add the default language selector anywhere on your page using&#58;" %}</p>
+
+            <pre><code class="language-python">{&shy;% tml_language_selector_tag %&shy;}</code></pre>
+ -->
+
+            <h2>{% trs "Setup" %}</h2>
+
+            {% trs "Before we proceed to the next section, it is important to know about data context that we will be using in our examples." %}
+
+            <pre><code class="language-ruby">
+users = {}
+users['michale'] = User("Michael", User.MALE)
+users['anna'] = User("Anna", User.FEMALE)
+users['alex'] = User("Alex", User.MALE)
+users['jenny'] = User("Jenny", User.FEMALE)
+users['peter'] = User("Peter", User.MALE)
+users['karen'] = User("Karen", User.FEMALE)
+users['thomas'] = User("Thomas", User.MALE)
+            </code></pre>
+
+            {% trs "Alternatively, you can use hashes to represent objects." %}
+
+            <pre><code class="language-ruby">
+michael = {"name": "Michael", "gender": "michael"}
+anna = {"name": "Anna", "gender": "anna"}
+...
+            </code></pre>
+
+            <h1>{% trs "Translation Markup Language" %}</h1>
+
+            <p>
+              {% trs "Translation Markup Language (TML) is used to identify the non-translatable or dynamic data within the labels. It provides a way to mark data and decoration tokens within the strings that need to be translated. There are different types of applications that can use TML - web, mobile and desktop. Some use HTML, others use Wiki-Like syntax for decorating the labels. TML aims at abstracting out the decoration mechanisms of the string used by the applications and instead provides its own simple, but powerful syntax. This allows for translation sharing across multiple applications." %}
+            </p>
+
+            <h2>{% tr %}Basics{% endtr %}</h2>
+
+
+            {% tr %}Django Tml Client SDK provides translation function using template tags and filters. The most popular for translations are "tr" and "trs".{% endtr %}
+
+            {% trs "The template tag can be called similar to blocktrans of native Django tag&#58;" %}
+
+            <pre><code class="language-ruby">{&shy;% tr with bar=foo|filter boo=baz|filter context "description" %&shy;}This is {{ bar }} and {{ boo }}.{&shy;% endtr %&shy;}</code></pre>
+
+            {% trs "You can skip context (tml description)&#58;" %}
+
+            <pre><code class="language-python">{&shy;% tr with bar=foo|filter boo=baz|filter %&shy;}This is {{ bar }} and {{ boo }}.{&shy;% endtr %&shy;}</code></pre>
+
+            {% trs "You can trim space character before and after the tag using `trim` option&#58;" %}
+
+            <pre><code class="language-python">{% verbatim %}{% tr with bar=foo|filter boo=baz|filter trimmed %}This is {{ bar }} and {{ boo }}.{% endtr %}{% endverbatim %}</code></pre>
+
+            {% trs "If you do not wish your translated string to be wrapped into a tml tag, use `nowrap` option&#58;" %}
+
+            <pre><code class="language-python">{% verbatim %}{&shy;% tr with bar=foo|filter boo=baz|filter nowrap %&shy;}This is {{ bar }} and {{ boo }}.{&shy;% endtr %&shy;}{% endverbatim %}
+            </code></pre>
+
+            {% trs "If you wish to store your translated string as context variable rather then print it, use `as` option:&#58;" %}
+
+            <pre><code class="language-python">{% verbatim %}{% tr with bar=foo|filter boo=baz|filter as foo_string %}This is {{ bar }} and {{ boo }}.{% endtr %}
+<span>{{ foo_string }}</span>            {% endverbatim %}</code></pre>
+
+            {% trs "Tml in conjunction with django native i18n tags and filters provides a number of utilities&#58;" %}
+
+            <pre><code class="language-python">{% verbatim %} {% trs "Hello world" %} {% endverbatim %}</code></pre>
+
+
+            <pre><code class="language-python">{% verbatim %} {% language "ru" %}{% trs "Hello world" %} {% endlanguage %}{% endverbatim %}</code></pre>
+
+            {% trs "You can wrap your translation strings into source:" %}
+
+            <pre><code class="language-python">{% verbatim %} {% source "navigation" %} ... {% endsource %}{% endverbatim %}</code></pre>
+
+            {% trs "To redefine generic tml options such as source or target locale use&#58;" %}
+            <pre><code class="language-python">{% verbatim %} {% tmlopts with source="navigation" %} ... {% endtmlopts %}{% endverbatim %}</code></pre>
+
+            <p>
+            <ul>
+              <li>{% trs "[bold: label] is the only required parameter." %}
+              <li>{% trs "[bold: description] is an optional parameter, but should always be used if the label by itself is not sufficient enough to provide the meaning of the phrase." %}
+              <li>{% trs "[bold: tokens] is an optional parameter that contains a hash (or a dictionary) of token values to be substituted in the label." %}
+              <li>{% trs "[bold: options] provides a mechanism for passing additional directives to the translation engine." %}
+            </ul>
+            </p>
+
+            <p>{% trs "Let's start with a simple phrase&#58;" %}</p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% trs "Hello World" %&shy;}</code></pre>
+
+              <div class="content">
+                {% trs "Hello world" %}
+              </div>
+            </div>
+
+            <p>
+              {% trs "The context of a phrase is not mandatory, but it should be used in cases when the label alone is not sufficient enough to determine the meaning of the sentence being translated." %}
+              {% trs "As a general rule, you should always provide context description to words, phrases and sentences that are only meaningful within a specific context." %}
+              {% trs "Tml uses label and description together to create a unique key for each phrase." %}
+              {% trs "The description serves two purposes: it creates a unique key for each label and it also gives a hint to the translators for the context in which the label is used." %}
+            </p>
+
+            <p>
+              {% trs "For example, the following two phrases will be registered as two independent entries in a database even though the have the same label, but a different context. The user will have to translate each one of them separately as they will have different translated labels in other languages." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% trs "Invite" context "Link to invite your friends to join the site" %&shy;}
+{&shy;% trs "Invite" context "An invitation you received from your friend" %&shy;}</code></pre>
+
+              <div class="content">
+                {% trs "Invite" context "Link to invite your friends to join the site" %}<br>
+                {% trs "Invite" context "An invitation you received from your friend" %}
+              </div>
+            </div>
+
+            <p>
+              {% trs "It is important to provide the best possible description for each phrase from the start. Keep in mind that changing a description in the future, after it has already been translated, will register a new phrase in the database and invalidate all of its translations. On the other hand, labels that are complete sentences may not need a description as they are fully self-contained." %}
+            </p>
+
+
+            <h2>{% trs "Data Tokens" %}</h2>
+
+            <p>{% trs "In many cases your tokens would be string objects that get substituted directly into the translated sentence." %}</p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+
+              <pre class="code"><code class="language-ruby">{&shy;% tr with user=users.michael %&shy;} Hello {user} {&shy;% endtr %&shy;}</code></pre>
+
+              <div class="content">
+                {% tr with user=users.michael %} Hello {user} {% endtr %}
+              </div>
+            </div>
+
+            <p>{% trs "Translations can be nested." %}</p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% trs "Los Angeles" as city %&shy;}
+{&shy;% tr with city=city %&shy;} Welcome to {&shy;city&shy;} {&shy;% endtr %&shy;}</code></pre>
+
+              <div class="content">
+              {% trs "Los Angeles" as city %}
+              {% tr with city=city %} Welcome to {city} {% endtr %}
+                <br>
+              {% trs "Moscow" as city %}
+              {% tr with city=city %} Welcome to {city} {% endtr %}
+              </div>
+            </div>
+
+            <p>{% trs "But make sure that you don't take translations out of context." %}
+            </p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% trs "registration page" as registration %&shy;}
+{&shy;% tr with link="" %&shy;}Please visit our [link: {registration}] to join our site. {&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% trs "registration page" as registration %}
+                {% tr with link="" %}Please visit our [link: {registration}] to join our site. {% endtr %}
+              </div>
+            </div>
+
+            <p>
+              {% trs 'The problem with the above example, is that the "registration page" link text would be translated differently based on the context where it appears.' %}
+              {% trs "You must keep the two parts together to make sure the translations are accurate. You will later see how you can use decoration tokens to fix the above problem." %}
+            </p>
+
+            <p>
+              {% tr %}You can also get the substitution value by invoking a method or access hash key of the object using default django template syntax.{% endtr %}
+            </p>
+            <div class="example">
+              <div class="title">{% tr %}example{% endtr %}</div>
+              <pre class="code"><code class="language-ruby">{&shy;% tr with user=users.michael.name %&shy;} Dear {user} {&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with user=users.michael.name %} Dear {user} {% endtr %}
+              </div>
+            </div>
+
+            <h2>{% trs "Method Tokens" %}</h2>
+
+            <p>
+              {% trs "Method tokens allow you to invoke methods on the object you are passing to get the substitution value." %}
+            </p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with user=users.michael %&shy;}Hello {user.name}, you are a {user.gender}{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with user=users.michael %}Hello {user.name}, you are a {user.gender}{% endtr %}
+              </div>
+            </div>
+
+            <h2>{% trs "Piped Tokens" %}</h2>
+
+            <p>
+              {% trs "Piped tokens work in conjunction with context rules and allow you to provide substitution values based on the object values." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with count=1 %&shy;}You have {count||one:message,other:messages}{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with count=1 %}You have {count||one:message,other:messages}{% endtr %}
+                <br/>
+                {% tr with count=2 %}You have {count||one:message,other:messages}{% endtr %}
+                <br/>
+                {% tr with count=10 %}You have {count||one:message,other:messages}{% endtr %}
+              </div>
+            </div>
+
+            <p>
+              {% trs 'Double pipe "||" means that the value would be displayed, followed by the word that depends on the value. In this case, if the count value meets the criteria for the rule "one", then it will display the word set to the rule. For all other cases it would display the "other" value.' %}
+            </p>
+
+            <p>{% trs 'Since the sequence of parameters is mapped to the sequence of rules, you can omit naming the parameters.' %}</p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with count=2 %&shy;}You have {count||message,messages}{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with count=1 %}You have {count||message,messages}{% endtr %}
+                <br/>
+                {% tr with count=2 %}You have {count||message,messages}{% endtr %}
+                <br/>
+                {% tr with count=10 %}You have {count||message,messages}{% endtr %}
+              </div>
+            </div>
+
+            <p>{% trs "Since the library comes with default pluralizers, you don't even need to provide the plural form. It will be automagically generated for you." %}</p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with count=2 %&shy;}You have {count||message}{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with count=1 %}You have {count||message}{% endtr %}
+                <br>
+                {% tr with count=2 %}You have {count||message,messages}{% endtr %}
+                <br>
+                {% tr with count=10 %}You have {count||message,messages}{% endtr %}
+              </div>
+            </div>
+
+
+            <p>{% trs 'The same exact concept applies to other token types and context rules.' %}</p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with user=users.michael %&shy;}{user} updated {user|his,her} profile.{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with user=users.michael %}{user} updated {user|his,her} profile.{% endtr %}
+              </div>
+            </div>
+
+            <p>
+              {% trs 'Single pipe "|" means to not display the actual token value, but display the value that follows based on the context rules.' %}
+            </p>
+
+
+            <p>
+              {% trs "The context rules are specific for each language. But you don't have to worry about it, translators will provide the rules and the values." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">{&shy;% tr with user=users.michael %&shy;}{user||родился,родилась,родился/лась} в Ленинграде.{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with user=users.michael %}{user||родился,родилась,родился/лась} в Ленинграде.{% endtr %}<br>
+                {% tr with user=users.anna %}{user||родился,родилась,родился/лась} в Ленинграде.{% endtr %}
+              </div>
+            </div>
+
+
+            <h2>{% trs "Implied Tokens" %}</h2>
+            <p>
+              {% trs "Implied tokens use a single pipe since the value does not need to be displayed." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with user=users.michael %&shy;}{user|male:He,female:She,other:It} likes this movie.{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with user=users.michael %}{user|male:He,female:She,other:It} likes this movie.{% endtr %}
+              </div>
+            </div>
+
+            <p>
+              {% trs "Similar to the previous examples, you don't have to provide the named parameter values." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with user=users.michael %&shy;}{user|He,She,It} likes this movie.{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with user=users.michael %}{user|He,She,It} likes this movie.{% endtr %}
+              </div>
+            </div>
+{% comment %}
+            <p>
+              {% trs "Even though the base language does not have a gender specific dependency in some cases, it is always good to wrap it with an implied token." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">tr("{user| Born on}: ", :user => @michael)</code></pre>
+              <div class="content">
+
+                {% tr with user=users.michael %}{user|Born on}:{% endtr %}
+
+              </div>
+            </div>
+
+            <p>{% trs "As a general rule, if any of the words of your translation keys depend on a user, use implied tokens. It won't affect default translations, yet it would give translators an option make the translation accurate." %}</p>
+{% endcomment %}
+
+            <h2>{% trs "Decoration Tokens" %}</h2>
+            <p>
+              {% trs "Decoration tokens are used to inject HTML styling into translations." %}
+              {% trs "In other libraries, like in iOS or Android, the tokens can be substituted with a native decoration framework." %}
+            </p>
+
+            <p>{% trs "The token values can be passed as lambdas." %}</p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with link="http://google.com" %&shy;}Hello [link: World]{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with link="http://google.com" %}Hello [link: World]{% endtr %}
+              </div>
+            </div>
+
+            <p>
+              {% trs 'Or they can be defined as strings, where &#91;bold: "&#123;$0&#125;"&#93; indicates the translated value being passed in.'  %}
+            </p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr %&shy;}Hello [bold: World]{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr %}Hello [bold: World]{% endtr %}
+              </div>
+            </div>
+{% comment %}
+            <p>
+              {% trs "You can also pre-define all your tokens in the configuration. Then you don't need to pass them at all. In the following example, [bold: bold] is already pre-defined in the framework." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">Tml.configure do |config|
+              config.set_default_token(:custom, "&lt;span style='font-size:larger'&gt;{$0}&lt;/span&gt;", :decoration)
+            end</code></pre>
+              <%
+                 Tml.configure do |config|
+                  config.set_default_token(:custom, "<span style='font-size:larger'>{$0}</span>", :decoration)
+                 end
+              %>
+
+              <pre class="code"><code class="language-python">tr("Hello [custom: World]")</code></pre>
+              <div class="content">
+                {% tr %}Hello [custom: World]{% endtr %}
+              </div>
+            </div>
+
+            <p>{% trs "The default tokens can also use named parameters&#58;" %}</p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">Tml.configure do |config|
+              config.set_default_token(:link, "&lt;a href='{$href}'&gt;{$0}&lt;/a&gt;", :decoration)
+              config.set_default_token(:font, "&lt;span style='font-size:{$size};font-family:{$family};color:{$color}'&gt;{$0}&lt;/span&gt;", :decoration)
+            end</code></pre>
+              <%
+                 Tml.configure do |config|
+                   config.set_default_token(:link, "<a href='{$href}'>{$0}</a>", :decoration)
+                   config.set_default_token(:font, "<span style='font-family:{$family};font-size:{$size}pt;color:{$color}'>{$0}</span>", :decoration)
+                 end
+              %>
+
+              <pre class="code"><code class="language-python">tr("[link: Click here] to [font: create a new account].", {
+                :link => {:href => "/"},
+                :font => {:family => "Arial", :size => 16, :color => "green"}
+            })</code></pre>
+              <div class="content">
+                {% tr %}[link: Click here] to [font: create a new account].", {% endtr %}
+              </div>
+            </div>
+
+            <p>{% trs "You can also use the long notation of the decoration token." %}</p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">tr("[link] Click here [/link] to view this section of the document", :link => {:href => "/docs"})</code></pre>
+              <div class="content">
+                {% tr %}[link] Click here [/link] to view this section of the document", {% endtr %}
+              </div>
+            </div>
+
+            <p>
+              {% trs "Decoration tokens can be nested." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">tr("[link] [bold: Click here] to view [underline: this section] of the document [/link]", {
+              :link => {:href => "/docs"},
+              :underline => lambda{|value| "&lt;span style='text-decoration: underline'&gt;#{value}&lt;/span&gt;"}
+            })</code></pre>
+              <div class="content">
+                {% tr %}[link] [bold: Click here] to view [underline: this section] of the document [/link]", {
+                    :link => {:href => "/docs"},
+                    :underline => lambda{|value| "<span style='text-decoration: underline'>#{value}</span>"}
+                })
+                {% endtr %}
+              </div>
+            </div>
+{% endcomment %}
+            <h2>{% trs "Nested Tokens" %}</h2>
+
+            <p>
+              {% trs "Decoration tokens can be nested and they may contain data tokens as well." %}
+            </p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">{&shy;% tr with count=10 link="" %&shy;}You have [link: {count||message,messages}]{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with count=10 link="" %}You have [link: {count||message,messages}]{% endtr %}
+              </div>
+            </div>
+
+
+            <p>
+              {% trs "Notice that all of the nested tokens are still translated in-context and allow for very accurate translations." %}
+            </p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">{&shy;% tr with count=10 link="" %&shy;}You have [link: [bold: {count}] {count|message,messages}]{&shy;% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with count=10 link="" %}You have [link: [bold: {count}] {count|message,messages}]{% endtr %}
+              </div>
+            </div>
+
+
+            <h2>{% trs "Array Tokens" %}</h2>
+
+            {% trs "Default options&#58;" %}
+
+            <pre><code class="language-python">{&shy;% tr with
+user_list=user_list
+limit=user_list|length
+separator=","
+last_separator=""
+tpl="$0" %&shy;} {&shy;% endtr &shy;%}</code></pre>
+
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with user_list=user_list %&shy;} {user_list} joined this site. {&shy;% endtr &shy;%}</code></pre>
+              <div class="content">
+                {% tr with user_list=user_list %}{user_list} joined the site.{% endtr %}
+              </div>
+            </div>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with user_list=user_list|map:"name" last_separator="or" tpl="{$0::pos}" %&shy;} {user_list} joined this site. {&shy;% endtr &shy;%}</code></pre>
+              <div class="content">
+                {% tr with user_list=user_list last_separator="or" tpl="{$0::pos}" %}{user_list} joined the site.{% endtr %}
+              </div>
+            </div>
+
+            <h1>{% trs "Context Rules" %}</h1>
+            <p>
+              {% trs "Context rules are used to provide translations based on a specific value of one or more tokens in a sentence." %}
+            </p>
+
+            <h2>{% trs "Numbers" %}</h2>
+            <p>
+              {% trs 'Languages may have simple or complex numeric rules. For example, in English, there are only two rules for "one" and "other". Slovak languages, like Russian, have 3 rules.' %}
+              {% trs "Translator can provide a translation for each rule or rule combination based on the token values." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% for i in ten %&shy;}
+  {&shy;% tr with count=i %&shy;}You have {count||message,messages}{&shy;% endtr %&shy;}
+{&shy;% endfor %&shy;}</code></pre>
+              <div class="content">
+                {% for i in ten %}
+                  {% tr with count=i %}You have {count||message,messages}{% endtr %}<br>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% for i in five %&shy;}
+  {&shy;% tr with start_num=i end_num=i|add:25 count=100|add:i %&shy;}Displaying [bold: {start_num}]-[bold: {end_num}] of [bold: {count}] people{&shy;% endtr %&shy;}<br>
+{&shy;% endfor %&shy;}</code></pre>
+              <div class="content">
+                {% for i in five %}
+                  {% tr with start_num=i end_num=i|add:25 count=100|add:i %}Displaying [bold: {start_num}]-[bold: {end_num}] of [bold: {count}] people{% endtr %}<br>
+                {% endfor %}
+              </div>
+            </div>
+
+            <h2>{% trs "Genders" %}</h2>
+            <p>
+              {% trs "Similarly to the numeric rules, some language have dependencies on the gender." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% for user in users %&shy;}
+  {&shy;% tr %&shy;}{user} uploaded {user|his,her} photo{&shy;% endtr %&shy;}<br>
+{&shy;% endfor %&shy;}</code></pre>
+              <div class="content">
+                {% for cur_user in user_list %}
+                  {% tr with user=cur_user %}{user} uploaded {user|his,her} photo{% endtr %}<br>
+                {% endfor %}
+              </div>
+            </div>
+
+            <p>
+              {% trs "Sometimes tokens need to be implied&#58;" %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% for user in user_list %&shy;}
+  {&shy;% tr with user=user %&shy;}{user|Registered} on:{&shy;% endtr %&shy;}<br>
+{&shy;% endfor %&shy;}</code></pre>
+              <div class="content">
+                {% for user in user_list %}
+                  {% tr with user=user %}{user|Registered,Registered} on:{% endtr %}<br>
+                {% endfor %}
+              </div>
+            </div>
+
+            <h2>{% trs "Dates" %}</h2>
+            <p>{% trs "Dates can also be used for contextual evaluation." %} {% trs "Consider the following example&#58;" %}</p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{% verbatim %}{% for date in dates %}
+  {% if date == current_date %}
+    {% tr with user=users.michael %}{user} is celebrating {user| his, her} birthday today{% endtr %}
+  {% elif date < current_date %}
+    {% tr with user=users.michael date=date%}{user} celebrated {user| his, her} birthday on {date}{% endtr %}
+  {% else %}
+    {% tr with user=users.michael date=date %}{user} will celebrate {user| his, her} birthday on {date}{% endtr %}
+  {% endif %}
+{% endfor %}{% endverbatim %}</code></pre>
+
+              <div class="content">
+                {% for date in dates %}
+                  {% if date == current_date %}
+                    {% tr with user=users.michael %}{user} is celebrating {user| his, her} birthday today{% endtr %}
+                  {% elif date < current_date %}
+                    {% tr with user=users.michael date=date%}{user} celebrated {user| his, her} birthday on {date}{% endtr %}
+                  {% else %}
+                    {% tr with user=users.michael date=date %}{user} will celebrate {user| his, her} birthday on {date}{% endtr %}
+                  {% endif %}
+                  <br>
+                {% endfor %}
+              </div>
+            </div>
+
+            <p>{% trs "You can encode the entire structure in one sentence&#58;" %}</p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{% verbatim %}{% for date in dates %}
+  {% tr with user=users.michael date=date %}{user} {date|past:celebrated,present:celebrates,future:will celebrate} {user| his, her} birthday {date|yesterday,today,tomorrow}{% endtr %}
+{% endfor %}{% endverbatim %}</code></pre>
+
+              <div class="content">
+                {% for date in dates %}
+                  {% tr with user=users.michael date=date %}{user} {date|past:celebrated,present:celebrates,future:will celebrate} {user| his, her} birthday {date|yesterday,today,tomorrow}{% endtr %}<br>
+                {% endfor %}
+              </div>
+            </div>
+{% comment %}
+            <h2>{% trs "Lists" %}</h2>
+            <p>{% trs "In languages like Hebrew, the list rules may include cases such as when all members of the list are male, female or have mixed genders. In Russian, the list rules may include cases for single member male, female, unknown or multiple members." %}</p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">[[@michael], [@michael, @anna]].each do |users|
+              tr("{users || likes, like} this post", :users => users)
+            end</code></pre>
+              <div class="content">
+                <% [[@michael], [@anna], [@karen, @jenny], [@thomas, @michael, @peter]].each do |users| %>
+                  {% tr %}{users||likes, like} this post", :users => [users, lambda{|user| tr(user.name)}]) {% endtr %}<br>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">[[@michael], [@anna], [@karen, @jenny], [@thomas, @michael, @peter]].each do |users|
+              tr("{users||has, have} arrived at {users|his, her, their} destination.",
+                      :users => [users, lambda{|user| tr(user.name)}]
+              )
+            end</code></pre>
+              <div class="content">
+                <% [[@michael], [@anna], [@karen, @jenny], [@thomas, @michael, @peter]].each do |users| %>
+                  {% tr %}{users||has, have} arrived at {users|his, her, their} destination.", :users => [users, lambda{|user| tr(user.name)}]) {% endtr %}<br>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">[[@michael], [@anna], [@anna, @michael, @alex, @jenny]].each do |users|
+              1.upto(3) do |count|
+                ["Los Angeles", "Paris"].each do |city|
+                  tr("{users || перебрался, перебралась, перебрались} в {city} {count || месяц, месяца, месяцев} назад", {
+                      :users => [users, lambda{|user| tr(user.name)}],
+                      :city => tr(city),
+                      :count => count
+                    },
+                    {:locale => 'ru'}
+                  )
+                end
+              end
+            end</code></pre>
+              <div class="content">
+
+              </div>
+            </div>
+{% endcomment %}
+            <h1>{% trs "Language Cases" %}</h1>
+
+            <p>{% trs "Language cases allow you to manipulate the values of the data passed through tokens." %}</p>
+
+            <h2>{% trs "English Examples" %}</h2>
+
+            <h4>{% trs "Possessives" %}</h4>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tr with user=users.michael %}This is {user::pos} post{% endtr %&shy;}</code></pre>
+              <div class="content">
+                {% tr with user=users.michael %}This is {user::pos} post{% endtr %}
+              </div>
+            </div>
+
+            <h4>{% trs "Counters" %}</h4>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                      <pre class="code"><code class="language-python">{&shy;% for i in five %&shy;}
+  {&shy;% tr with count=i %&shy;}You have already sent this message {i::times}{&shy;% endtr %&shy;}<br>
+{&shy;% endfor %&shy;}</code></pre>
+              <div class="content">
+                {% for i in five %}
+                  {% tr with count=i %}You have already sent this message {i::times}{% endtr %}<br>
+                {% endfor %}
+              </div>
+            </div>
+
+            <h4>{% trs "Ordinals" %}</h4>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                      <pre class="code"><code class="language-python">{&shy;% for i in five %&shy;}
+  {&shy;% tr with count=i %&shy;}This is your {count::ord} warning{&shy;% endtr %&shy;}<br>
+{&shy;% endfor %&shy;}</code></pre>
+              <div class="content">
+                {% for i in five %}
+                  {% tr with count=i %}This is your {count::ord} warning{% endtr %}<br>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                      <pre class="code"><code class="language-python">{&shy;% for i in five %&shy;}
+  {&shy;% tr with count=i %&shy;}This is your {count::ordinal} warning{&shy;% endtr %&shy;}<br>
+{&shy;% endfor %&shy;}</code></pre>
+              <div class="content">
+                {% for i in five %}
+                  {% tr with count=i %}This is your {count::ordinal} warning{% endtr %}<br>
+                {% endfor %}
+              </div>
+            </div>
+
+            <h2>{% trs "Russian Examples" %}</h2>
+
+            {% trs "Let's use Russian language to see some more advanced language cases in action." %}
+
+            {% trs "We will also be translating the names of our users, in order to get a better picture of how the names get adjusted." %}
+
+            <h4>Nominative Case - Именительный Падеж</h4>
+            <p>
+              {% trs "No real change to the values here." %}
+            </p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">{&shy;%  language 'ru' %&shy;}
+  {&shy;% trs users.anna.name as anna_name %&shy;}
+  {&shy;% tr with actor=anna_name %&shy;}{actor::nom} тестирует это приложение{&shy;% endtr %&shy;}<br>
+{&shy;% endlanguage %&shy;}</code></pre>
+              <div class="content">
+                {%  language 'ru' %}
+                  {% trs users.anna.name as anna_name nowrap %}
+                  {% tr with actor=anna_name  %}{actor::nom} тестирует это приложение{% endtr %}<br>
+                {% endlanguage %}
+              </div>
+            </div>
+
+            <h4>Genitive Case - Родительный Падеж</h4>
+            <p>{% trs "In grammar, genitive (abbreviated gen; also called the possessive case or second case) is the grammatical case that marks a noun as modifying another noun." %}</p>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">{&shy;%  language 'ru' %&shy;}
+  {&shy;% trs users.michael.name as michael_name %&shy;}
+  {&shy;% tr with actor=users.anna target=users.michael %&shy;}{actor|| пригласил, пригласила} {target::gen} на вечеринку{&shy;% endtr %&shy;}<br>
+{&shy;% endlanguage %&shy;}</code></pre>
+              <div class="content">
+                {%  language 'ru' %}
+                  {% trs users.michael.name as michael_name nowrap %}
+                  {% tr with actor=users.anna target=michael_name %}{actor||пригласил,пригласила} {target::gen} на вечеринку{% endtr %}<br>
+                {% endlanguage %}<br>
+              </div>
+            </div>
+
+            <h4>Dative Case - Дательный Падеж</h4>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">{&shy;%  language 'ru' %&shy;}
+  {&shy;% for item in users %&shy;}
+    {&shy;% tr with actor=users.michael target=item %&shy;}{actor|| подарил, подарила} подарок {target::dat}{&shy;% endtr %&shy;}<br>
+  {&shy;% endfor %&shy;}
+{&shy;% endlanguage %&shy;}</code></pre>
+              <div class="content">
+                {%  language 'ru' %}
+                  {% for item in users %}
+                    {% tr with actor=users.michael target=item %}{actor||подарил,подарила} подарок {target::dat}{% endtr %}<br>
+                  {% endfor %}
+                {% endlanguage %}
+              </div>
+            </div>
+
+            <h4>Accusative Case - Винительный Падеж</h4>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">{&shy;%  language 'ru' %&shy;}
+  {&shy;% trs users.michael.name as michael_name %&shy;}
+  {&shy;% tr with actor=users.anna target=michael_name %&shy;}{actor|| увидел, увидела} {target::acc} на вечеринке{&shy;% endtr %&shy;}<br>
+{&shy;% endlanguage %&shy;}</code></pre>
+              <div class="content">
+                {%  language 'ru' %}
+                    {% trs users.michael.name as michael_name nowrap %}
+                    {% tr with actor=users.anna target=michael_name %}{actor||увидел,увидела} {target::acc} на вечеринке{% endtr %}<br>
+                {% endlanguage %}
+              </div>
+            </div>
+
+            <h4>Instrumental Case - Творительный Падеж</h4>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                    <pre class="code"><code class="language-python">{&shy;%  language 'ru' %&shy;}
+  {&shy;% trs users.anna.name as anna_name %&shy;}
+  {&shy;% trs users.michael.name as michael_name %&shy;}
+  {&shy;% tr with actor=anna_name target=michael_name %&shy;}{actor} гордится {target::ins}{&shy;% endtr %&shy;}<br>
+{&shy;% endlanguage %&shy;}</code></pre>
+              <div class="content">
+                {%  language 'ru' %}
+                  {% trs users.anna.name as anna_name nowrap %}
+                  {% trs users.michael.name as michael_name nowrap %}
+                  {% tr with actor=anna_name target=michael_name  %}{actor} гордится {target::ins}{% endtr %}<br>
+                {% endlanguage %}
+              </div>
+            </div>
+
+            <h4>Prepositional Case - Предложный Падеж</h4>
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+                  <pre class="code"><code class="language-python">{&shy;%  language 'ru' %&shy;}
+  {&shy;% trs users.anna.name as anna_name %&shy;}
+  {&shy;% trs users.michael.name as michael_name %&shy;}
+  {&shy;% tr with actor=anna_name target=michael_name %&shy;}{actor} думает о {target::pre}{&shy;% endtr %&shy;}<br>
+  {&shy;% tr with actor=michael_name target=anna_name %&shy;}{actor} думает о {target::pre}{&shy;% endtr %&shy;}<br>
+{&shy;% endlanguage %&shy;}</code></pre>
+              <div class="content">
+                {%  language 'ru' %}
+                  {% trs users.michael.name as michael_name nowrap %}
+                  {% trs users.anna.name as anna_name nowrap %}
+                  {% tr with actor=anna_name target=michael_name nowrap %}{actor} думает о {target::pre}{% endtr %}<br>
+                  {% tr with actor=michael_name target=anna_name nowrap %}{actor} думает о {target::pre}{% endtr %}<br>
+                {% endlanguage %}
+              </div>
+            </div>
+
+            <h1>{% trs "Extensions" %}</h1>
+
+            <h2>{% trs "Blocks" %}</h2>
+
+            <p>
+              {% trs "Blocks allow you to apply a set of options to all translation keys within the block. One of the main uses cases for the blocks are grouping keys into sources. Sources are used for caching and management of translation keys." %}
+            </p>
+
+            <div class="example">
+              <div class="title">{% trs "example" %}</div>
+              <pre class="code"><code class="language-python">{&shy;% tmlopts with source="sample_source" %&shy;}
+  {&shy;% trs "Hello World" %&shy;}
+{&shy;% endtmlopts %&shy;}</code></pre>
+              <div class="content">
+                {% tmlopts with source="sample_source" %}
+                  {% trs "Hello World" %}
+                {% endtmlopts %}
+              </div>
+            </div>
+            </div>
+        </div>
+    </div>
+<style>
+  .example {
+    background: #eee;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom:15px;
+  }
+  .example .title {
+    color: white;
+    width: 80px;
+    text-align:center;
+    padding:3px;
+    background: #ccc;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-top-left-radius:5px;
+    border-bottom-right-radius:5px;
+  }
+
+  .example .content {
+    padding:10px;
+  }
+
+  h1 {
+    margin-top: 30px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #eee;
+  }
+
+  h2 {
+    margin-top: 35px;
+  }
+
+  h4 {
+    margin-top: 35px;
+  }
+
+  #toc {
+    width:240px;
+  }
+
+  .code {
+    margin: 10px !important;
+  }
+</style>
+<link rel="stylesheet" media="all" href="{% static 'css/jquery.tocify.css' %}" />
+<link rel="stylesheet" media="all" href="{% static 'css/prism.css' %}" %}/>
+
+<script src="{% static 'js/jquery.tocify.min.js' %}"></script>
+<script src="{% static 'js/prism.js' %}"></script>
+<script src="{% static 'js/prism_rails.js' %}"></script>
+<script>
+  $(function() {
+    $("#toc").tocify({
+      "selectors": "h1,h2,h3"
+    });
+  });
+</script>
+
+{% endblock %}
