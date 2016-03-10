@@ -1,2 +1,2 @@
-pytml[pylibmc]>=0.2.3
+pytml[pylibmc]>=0.2.4
 django>=1.7
