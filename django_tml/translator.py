@@ -27,7 +27,7 @@ def to_str(fn):
 
 def fallback_locale(locale):
     exploded = locale.split('-')
-    if 2==len(exploded):
+    if 2 == len(exploded):
         return exploded[0]
     else:
         return None
@@ -153,13 +153,14 @@ class Translation(LoggerMixin):
         """ getter to current language """
         return self.locale or self.config.default_locale
 
-    def activate(self, locale):
+    def activate(self, locale, dry_run=False):
         """ Activate selected language
             Args:
                 locale (string): selected locale
         """
-        if not locale in self.supported_locales:
-            locale = self.config.default_locale
+        if not dry_run:
+            if not locale in self.supported_locales:
+                locale = self.config.default_locale
         self.locale = locale
         self.reset_context()
 

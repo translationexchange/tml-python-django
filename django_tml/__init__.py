@@ -15,8 +15,8 @@ def tr(label, data = None, description = None, options = {}):
         get_logger().exception(error)
     return value
 
-def activate(locale, tml_settings=None):
-    Translation.instance(tml_settings=tml_settings).activate(locale)
+def activate(locale, dry_run=False, tml_settings=None):
+    Translation.instance(tml_settings=tml_settings).activate(locale, dry_run=dry_run)
 
 def activate_source(source):
     """ Use source block
