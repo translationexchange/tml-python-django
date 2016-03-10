@@ -41,7 +41,7 @@ Then add the following TML configuraiton to setting file:
 TML = {
     'environment': 'dev',
     'application': {
-        'key': '6c377447a542718bfd9fe0f5d8f11fae2827377bc4295db76667469db67bd8ed',
+        'key': '#',   # add application key from [TranslationExchange dashboard](https://dashboard.translationexchange.com/)
         'path': 'https://staging-api.translationexchange.com',
         'cdn_path': 'http://trex-snapshots.s3-us-west-1.amazonaws.com'},
     'monkeypatch': True,   # support legacy translations
@@ -70,8 +70,32 @@ To activate inline translation functionality add one more line in the head secti
 {­% tml_inline_header %­}
 ```
 
-*(Optional)* You can also add a language switcher in the navigation of your layout:
+*(Optional)* You can also add a language switcher to your site. Just add the next template tag in the navigation of your site:
 
 ```jinja2
 {% tml_language_selector type="sideflags" %}
+```
+
+### Demo application
+
+For look&feel we will run a demo application that consists of many samples and tml console (iframe app to test your strings).
+
+Instructions:
+
+```
+1. Clone the latest code from repository tml-python-django:
+git clone git@github.com:translationexchange/tml-python-django.git tml-python-django
+
+2. Navigate to the project demo directory:
+cd tml-python-django/demo
+
+3. Install necessary requirements
+pip install -r requirements.txt
+
+4. Execute database migration
+python manage.py migrate
+
+5. Run your demo
+python manage.py runserver
+
 ```
