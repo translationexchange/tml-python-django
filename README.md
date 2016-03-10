@@ -103,3 +103,16 @@ python manage.py migrate
 python manage.py runserver
 
 ```
+
+### TML Configuration
+
+* ``environment`` - Running environment (one of ``dev|stage|prod``)
+* ``application`` - Provide key for authentication, api path and cdn path to and path api path.
+* ``monkeypatch`` - This option facilitates Tml to be backward compatible with django i18n engine. You can still use django native tags for translating your strings.
+* ``cache`` - Define your cache configuration here. More about cache in advanced section.
+* ``agent`` - Agent helps your application to download JS SDK on initial load of your page and then use TML widgets, shortcuts and SDK in client-side.
+* ``data_preprocessors`` - Preprocessors applied on translateable string before actual processing. For example ``list`` preprocessors preprocess list like context variable into meaningful text token.
+* ``env_generators`` - Sometimes you do not need to provide substitution token variable. For example, ``viewing_user`` env generator could be substituted by the return value of env generator. By default we return ``request.user``.
+* ``logger`` - TML log that tracks interaction with SDK by http and supressed exceptions while translating string.
+
+
