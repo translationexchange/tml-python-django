@@ -225,11 +225,15 @@ class Translation(LoggerMixin):
         else:
             return self.translate(plural, {'number': number}, context)
 
-    def translate(self, label, data = {}, description = None):
+    def translate(self, label, data={}, description = None):
         """ Translate label """
-        key = Key(label = suggest_label(label), description= description, language = self.context.language)
+        language = self.context.language
+        key = Key(
+            label=suggest_label(label),
+            description=description,
+            language=language)
         # fetch translation for key:
-        translation = self.context.dict.translate(key)
+        translation = self.context.build_dict(language).translate(key)
         # prepare data for tranlation (apply env first):
         data = self.context.prepare_data(data)
         # fetch option depends env:
@@ -240,7 +244,7 @@ class Translation(LoggerMixin):
                 option = self.context.fallback(label, description).fetch_option(data, {})
             except OptionIsNotFound:
                 # Use label if tranlation fault:
-                option = TranslationOption(label = label, language= self.context.language)
+                option = TranslationOption(label = label, language= language)
 
         # convert {name} -> %(name)s
         return text_to_sprintf(option.label, self.context.language)
@@ -335,7 +339,7 @@ class Translation(LoggerMixin):
         as the provided language codes are taken from the HTTP request. See also
         <https://www.djangoproject.com/weblog/2007/oct/26/security-fix/>.
         """
-        _supported = self.context.application.supported_locales
+        _supported = self.supported_locales
         if lang_code:
             # if fr-ca is not supported, try fr.
             generic_lang_code = lang_code.split('-')[0]
@@ -357,10 +361,8 @@ class Translation(LoggerMixin):
         self.deactivate_source()
         self.reset_context()
 
-    def tr(self, label, data = {}, description = '', options = {}):
-        try:
-            return self.context.tr(label, data, description, options)
-        except self.config.get('handle', Exception) as e:
-            # Use label if tranlation fault:
-            return TranslationOption(label = label, language=self.context.language).execute(data, options)
+    def tr(self, label, data=None, description='', options=None):
+        return self.context.tr(label, data, description, options)
 
+    def tr_legacy(self, legacy_label, data=None, description='', options=None):
+        return self.context.tr_legacy(label, data=data, description=description, options=options)

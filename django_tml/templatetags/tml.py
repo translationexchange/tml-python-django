@@ -47,6 +47,9 @@ def handle_tml_exception(exc, silent=True):
 
 class TmlStringMixin(object):
 
+    def is_translated_string(self, error):
+        return not isinstance(error, TranslationIsNotExists)
+
     def wrap_label(self, text, key, translated):
         if self.nowrap:
             # nowrap flag is set
@@ -114,18 +117,10 @@ class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
             Returns:
                 translated text, key, translated
         """
-        context = Translation.instance().context
         try:
-            translation = context.fetch(label, description)
-            translated = True
-        except TranslationIsNotExists:
-            translation = context.fallback(label, description)
-            translated = False
-
-        try:
-            return self.wrap_label(context.render(translation, {}, {}),
-                                   translation.key,
-                                   translated)
+            key, trans_value, error = Translation.instance().tr(label, data={}, description=description, options={})
+            translated = self.is_translated_string(error)
+            return self.wrap_label(trans_value, key, translated)
         except Exception as e:
             self.exception(e)
             return handle_tml_exception(e)
@@ -197,21 +192,14 @@ class BlockTranslateNode(TmlStringMixin, BaseBlockTranslateNode, LoggerMixin):
             Returns:
                 translated text, key, translated
         """
-        context = Translation.instance().context
         try:
-            translation = context.fetch(label, description)
-            translated = True
-        except TranslationIsNotExists:
-            translation = context.fallback(label, description)
-            translated = False
-
-        try:
-            return self.wrap_label(context.render(translation, data, {}),
-                                   translation.key,
-                                   translated)
+            key, trans_value, error = Translation.instance().tr(label, data=data, description=description, options={})
+            translated = self.is_translated_string(error)
+            return self.wrap_label(trans_value, key, translated)
         except Exception as e:
             self.exception(e)
             return handle_tml_exception(e)
+
 
 class LegacyBlockTranlationNode(BlockTranslateNode):
     """ Tranlation with back support """
@@ -223,11 +211,9 @@ class LegacyBlockTranlationNode(BlockTranslateNode):
             Return:
                 tranlation
         """
-        context = Translation.instance().context
-        translation = legacy.fetch(context, label, description)
-        # Execute in legacy mode with %(token)s support
         try:
-            return legacy.execute(translation, data, {})
+            key, trans_value, _error = Translation.instance().tr_legacy(label, data=data, description=description, options={})
+            return trans_value   # we do not wrap here (todo: should think)
         except Exception as e:
             self.exception(e)
             return handle_tml_exception(e)
