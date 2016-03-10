@@ -57,6 +57,7 @@ class Translation(LoggerMixin):
         self.access_token = None
         self.translator = None
         self.init(tml_settings)
+        self.context_class = tml_settings.get('context_class', None)
         LoggerMixin.__init__(self)
 
     def init(self, tml_settings):
@@ -92,6 +93,7 @@ class Translation(LoggerMixin):
                 Context
         """
         return build_context(locale=self.locale,
+                             context=self.context_class,
                              source=self.source,  # todo:
                              client=self.build_client(self.access_token),
                              use_snapshot=self.use_snapshot,
@@ -149,13 +151,15 @@ class Translation(LoggerMixin):
 
     def get_language(self):
         """ getter to current language """
-        return self.locale or django_settings.LANGUAGE_CODE
+        return self.locale or self.config.default_locale
 
     def activate(self, locale):
         """ Activate selected language
             Args:
                 locale (string): selected locale
         """
+        if not locale in self.supported_locales:
+            locale = self.config.default_locale
         self.locale = locale
         self.reset_context()
 
@@ -362,7 +366,8 @@ class Translation(LoggerMixin):
         self.reset_context()
 
     def tr(self, label, data=None, description='', options=None):
+        options = options or {}
         return self.context.tr(label, data, description, options)
 
     def tr_legacy(self, legacy_label, data=None, description='', options=None):
-        return self.context.tr_legacy(label, data=data, description=description, options=options)
+        return self.context.tr_legacy(legacy_label, data=data, description=description, options=options)

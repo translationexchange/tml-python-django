@@ -3,13 +3,14 @@ from __future__ import absolute_import, unicode_literals
 import six
 from os.path import dirname
 from copy import deepcopy
+import pytest
 from django.conf import settings
 from django.test import SimpleTestCase
 from gettext import ngettext, gettext
 from django.template import Template
 from django.template.context import Context
 from tml.api.mock import Hashtable as DumbClient
-from tml.context import SourceContext
+from tml.context import SourceContext, LanguageContext
 from tml.exceptions import Error
 from tml.decoration import AttributeIsNotSet
 from tml.translation import Key
@@ -36,30 +37,28 @@ def WithSnapshotSettings():
 def WithDefaultSettings():
     return settings.TML
 
-
+@pytest.mark.usefixtures("activate")
 class DjangoTMLTestCase(SimpleTestCase):
     """ Tests for django tml tranlator """
     def setUp(self):
         Translation._instance = None # reset settings
-        Translation.instance(tml_settings=WithDefaultSettings())
 
     def test_tranlator(self):
-        t = Translation.instance(tml_settings=WithDefaultSettings())
+        t = Translation.instance()
         self.assertEquals(Translation, t.__class__, "Instance returns translator")
-        self.assertEquals(t, Translation.instance(), "Singletone")
+        self.assertEquals(t, Translation.instance(), 'singleton')
 
     def test_languages(self):
         """ Language switch """
-        t = Translation.instance(tml_settings=WithDefaultSettings())
+        t = self.activate('en', tml_settings=WithDefaultSettings())
         # reset en tranlation:
         en_hello_url = t.client.build_url('translation_keys/90e0ac08b178550f6513762fa892a0ca/translations',
                                           {'locale':'en'})
         t.client.data[en_hello_url] = {'error':'Force error'}
         self.assertEquals(['en', 'id', 'ru'], t.supported_locales)
-        self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'}))
+        self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'})[1])
         t.activate('ru')
         self.assertEquals('ru', t.get_language(), 'Set custom language')
-        self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch tranlation')
         t.activate('de')
         self.assertEquals('en', t.get_language(), 'If language is not supported reset to default')
         t.activate('id')
@@ -69,22 +68,20 @@ class DjangoTMLTestCase(SimpleTestCase):
 
     def test_source(self):
         """ Test languages source """
-        t = Translation.instance(tml_settings=WithDefaultSettings())
-        t.activate('ru')
+        t = self.activate('ru', tml_settings=WithDefaultSettings(), skip=True)
         t.activate_source('index')
-        self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
+        self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'})[1])
         t.activate_source('alpha')
-        self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'}), 'Use fallback translation')
+        self.assertEqual(to_string('Hello John'), t.tr('Hello {name}', {'name':'John'})[1], 'Use fallback translation')
         # flush missed keys on change context:
         client = t.context.language.client
         t.activate_source('index')
         self.assertEquals('sources/register_keys', client.url, 'Flush missed keys')
         # handle change:
-        self.assertEqual(to_string('Привет John'), t.tr('Hello {name}', {'name':'John'}), 'Fetch translation')
+        self.assertEqual(to_string('Привет John'), tr('Hello {name}', {'name':'John'}), 'Fetch translation')
 
     def test_gettext(self):
-        t = Translation.instance(tml_settings=WithDefaultSettings())
-        t.activate('ru')
+        t = self.activate('ru', skip=True, tml_settings=WithDefaultSettings())
         t.activate_source('index')
         self.assertEqual(to_string('Привет %(name)s'), t.ugettext('Hello {name}'), 'ugettext')
         gettext_result = t.gettext('Hello {name}')
@@ -116,7 +113,7 @@ class DjangoTMLTestCase(SimpleTestCase):
 
     def test_template_tags(self):
         """ Test for template tags """
-        activate('ru')
+        self.activate('ru')
         t = Template('{%load tml %}{% tr %}Hello {name}{% endtr %}')
         c = Context({'name':'John'})
         self.assertEquals(to_string('Привет John'), t.render(c))
@@ -153,46 +150,19 @@ class DjangoTMLTestCase(SimpleTestCase):
         Translation.instance().deactivate_source()
 
     def test_blocktrans(self):
-        activate('ru')
-        activate_source('blocktrans')
+        t = Translation.instance(tml_settings=WithDefaultSettings())
+        t.activate('ru')
+        t.activate_source('blocktrans')
         c = Context({'name':'John'})
-
-        t = Template('{%load tml %}{% blocktrans %}Hello {name}{% endblocktrans %}')
-        self.assertEquals(to_string('Привет John'), t.render(c))
+        tpl = Template('{%load tml %}{% blocktrans %}Hello {name}{% endblocktrans %}')
+        self.assertEquals(to_string('Привет John'), tpl.render(c))
 
         t = Template('{%load tml %}{% blocktrans %}Hello {{name}}{% endblocktrans %}')
         self.assertEquals(to_string('Привет John'), t.render(c), 'Use new tranlation')
-
-        # t = Template('{%load tml %}{% blocktrans %}Hey {{name}}{% endblocktrans %}')
-        # self.assertEquals(to_string('Эй John, привет John'), t.render(c), 'Use old tranlation')
-
         t = Template('{%load tml %}{% blocktrans count count=apples_count %}One apple{% plural %}{count} apples{% endblocktrans %}')
         self.assertEquals(to_string('Одно яблоко'), t.render(Context({'apples_count':1})),'Plural one')
         self.assertEquals(to_string('2 яблока'), t.render(Context({'apples_count':2})),'Plural 2')
         self.assertEquals(to_string('21 яблоко'), t.render(Context({'apples_count':21})),'Plural 21')
-
-    # def test_sources_stack(self):
-    #     t = Translation.instance(tml_settings=WithDefaultSettings())
-    #     self.assertEqual(None, t.source, 'None source by default')
-    #     t.activate_source('index')
-    #     self.assertEqual('index', t.source, 'Use source')
-    #     t.enter_source('auth')
-    #     self.assertEqual('auth', t.source, 'Enter (1 level)')
-    #     t.enter_source('mail')
-    #     self.assertEqual('mail', t.source, 'Enter (2 level)')
-    #     t.exit_source()
-    #     self.assertEqual('auth', t.source, 'Exit (2 level)')
-    #     t.exit_source()
-    #     self.assertEqual('index', t.source, 'Exit (1 level)')
-    #     t.exit_source()
-    #     self.assertEqual(None, t.source, 'None source by default')
-
-    #     t.activate_source('index')
-    #     t.enter_source('auth')
-    #     t.enter_source('mail')
-    #     t.activate_source('inner')
-    #     t.exit_source()
-    #     self.assertEqual(None, t.source, 'Use destroys all sources stack')
 
     def test_preprocess_data(self):
         activate('ru')
@@ -201,9 +171,8 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEquals(to_string('Привет Вася and Петя'), t.render(Context({'name':['Вася','Петя'], 'last_separator': 'and'})))
 
     def test_viewing_user(self):
-        activate('ru')
+        self.activate('ru')
         set_viewing_user({'name':'John','gender':'male'})
-        deactivate_source()
         self.assertEquals('Mr', tr('honorific'))
         set_viewing_user('female')
         self.assertEquals('Ms', tr('honorific'))

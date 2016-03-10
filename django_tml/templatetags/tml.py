@@ -212,7 +212,7 @@ class LegacyBlockTranlationNode(BlockTranslateNode):
                 tranlation
         """
         try:
-            key, trans_value, _error = Translation.instance().tr_legacy(label, data=data, description=description, options={})
+            _, trans_value, _ = Translation.instance().tr_legacy(label, data=data, description=description, options={})
             return trans_value   # we do not wrap here (todo: should think)
         except Exception as e:
             self.exception(e)

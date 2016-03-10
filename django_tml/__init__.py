@@ -3,16 +3,20 @@ from __future__ import absolute_import
 from django.utils import translation
 from .translator import Translation
 from django.conf import settings
+from tml.logger import get_logger
 
 
 __VERSION__ = '0.1.2'
 
 
 def tr(label, data = None, description = None, options = {}):
-    return Translation.instance().context.tr(label, data, description, options)
+    _, value, error = Translation.instance().context.tr(label, data, description, options)
+    if error:
+        get_logger().exception(error)
+    return value
 
-def activate(locale):
-    Translation.instance().activate(locale)
+def activate(locale, tml_settings=None):
+    Translation.instance(tml_settings=tml_settings).activate(locale)
 
 def activate_source(source):
     """ Use source block
