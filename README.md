@@ -89,13 +89,17 @@ git clone git@github.com:translationexchange/tml-python-django.git tml-python-dj
 2. Navigate to the project demo directory:
 cd tml-python-django/demo
 
-3. Install necessary requirements
+3. (optional) Activate environment
+virtualenv --no-site-packages tmldemo
+. ./tmldemo/bin/activate
+
+4. Install necessary requirements
 pip install -r requirements.txt
 
-4. Execute database migration
+5. Execute database migration
 python manage.py migrate
 
-5. Run your demo
+6. Run your demo
 python manage.py runserver
 
 ```
