@@ -35,7 +35,6 @@ def activate(request):
     from django_tml.translator import Translation
 
     def _activate(self, locale, tml_settings=None, skip=False):
-        Translation._instance = None
         tml_settings = deepcopy(tml_settings or {})
         if not skip:
             tml_settings['context_class'] = LanguageContext

@@ -10,7 +10,7 @@ __VERSION__ = '0.1.7'
 
 
 def tr(label, data = None, description = None, options = {}):
-    _, value, error = Translation.instance().context.tr(label, data, description, options)
+    _, value, error = Translation.instance().tr(label, data, description, options)
     if error:
         get_logger().exception(error)
     return value

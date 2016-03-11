@@ -29,7 +29,6 @@ from tml.rules.engine import Error as EngineError
 from tml.rules.options import Error as OptionsError
 from tml.rules.parser import ParseError
 from tml.decoration import AttributeIsNotSet, UnsupportedTag
-from tml import with_block_options
 
 register = Library()
 
@@ -221,12 +220,15 @@ class LegacyBlockTranlationNode(BlockTranslateNode):
 
 class TmlOptionsNode(Node):
 
-    def __init__(self, nodelist, source=None, **tml_options):
+    def __init__(self, nodelist, source=None, locale=None, language=None, **tml_options):
         self.nodelist = nodelist
         self.source = source
+        self.target_locale = locale or language
 
     def render(self, context):
-        with with_block_options(source=self.source.resolve(context)):
+        with Translation.instance().with_block_options(
+                source=self.source.resolve(context),
+                target_locale=self.target_locale):
             output = self.nodelist.render(context)
         return output
 
@@ -445,14 +447,14 @@ def do_tml_options(parser, token):
 
     Sample usage::
 
-        {% tmlopts with source="navigation" %}
+        {% tmlopts with source="navigation" locale="ru" %}
             {% trs "hello world" %}
             {% tr with bar=foo|filter context "greeting" %}
                 This is {{ bar }}.
             {% endtr %}
         {% endtmlopts %}
 
-        {% tmlopts with source=var|filter %}
+        {% tmlopts with source=var|filter language="en" %}
             ...
         {% endtmlopts %}
     """
@@ -498,10 +500,27 @@ def do_source_tag(parser, token):
     """
     close_token = ('endsource',)
     bits = token.split_contents()
-    remaining_bits = bits[1:]
     if len(bits) != 2:
         raise TemplateSyntaxError("'%r' statement takes one argument" % bits[0])
     source = parser.compile_filter(bits[1])
     nodelist = parser.parse(close_token)
     parser.delete_first_token()
     return TmlOptionsNode(nodelist, source=source)
+
+@register.tag('trlocale')
+def do_tr_locale(parser, token):
+    """
+    Samle usage::
+
+        {% trlocale "en" %}
+            ...
+        {% endtrlocale %}
+    """
+    close_token = ('endtrlocale',)
+    bits = token.split_contents()
+    if len(bits) != 2:
+        raise TemplateSyntaxError("'%r' statement takes one argument" % bits[0])
+    target_locale = parser.compile_filter(bits[1])
+    nodelist = parser.parse(close_token)
+    parser.delete_first_token()
+    return TmlOptionsNode(nodelist, locale=target_locale)

@@ -6,9 +6,9 @@ from django.conf import settings as django_settings
 from django.utils.translation.trans_real import to_locale, templatize, deactivate_all, parse_accept_lang_header, language_code_re, language_code_prefix_re
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.module_loading import import_string
-from tml import configure, build_context
+from tml import configure, build_context, Key, with_block_options
 from tml.application import Application
-from tml import Key
+from tml.session_vars import get_current_context
 from tml.translation import TranslationOption, OptionIsNotFound
 from tml.legacy import text_to_sprintf, suggest_label
 from tml.api.client import Client
@@ -51,7 +51,6 @@ class Translation(LoggerMixin):
         self.config = None
         self.locale = None
         self.source = None
-        self._context = None
         self._supported_locales = None
         self._client = None
         self.access_token = None
@@ -136,10 +135,13 @@ class Translation(LoggerMixin):
             Returns:
                 Context
         """
-        if self._context is None:
-            self._context = self.build_context()
+        context = get_current_context()
+        if context is None:
+            context = self.build_context()
+        return context
 
-        return self._context
+    def context_configured(self):
+        return get_current_context() and True or False
 
     def set_access_token(self, token):
         self.access_token = token
@@ -190,9 +192,9 @@ class Translation(LoggerMixin):
         self.activate_source(None)
 
     def reset_context(self):
-        if self._context:
-            self._context.deactivate()
-        self._context = None
+        context = get_current_context()
+        if context:
+            context.deactivate()
 
     def deactivate(self):
         """ Use default locole """
@@ -364,7 +366,6 @@ class Translation(LoggerMixin):
     def deactivate_all(self):
         self.deactivate()
         self.deactivate_source()
-        self.reset_context()
 
     def tr(self, label, data=None, description='', options=None):
         options = options or {}
@@ -372,3 +373,8 @@ class Translation(LoggerMixin):
 
     def tr_legacy(self, legacy_label, data=None, description='', options=None):
         return self.context.tr_legacy(legacy_label, data=data, description=description, options=options)
+
+    def with_block_options(self, **options):
+        if not self.context_configured():
+            self.build_context()   # forces context to be configured
+        return with_block_options(**options)

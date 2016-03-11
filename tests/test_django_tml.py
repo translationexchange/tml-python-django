@@ -133,6 +133,8 @@ class DjangoTMLTestCase(SimpleTestCase):
         t = Template(to_string('{%load tml %}{% tr with html|safe as name %}Hello {name}{% endtr %}'))
         self.assertEquals(to_string('Привет <"Вася">'), t.render(Context({'html':'<"Вася">'})))
 
+    def test_template_tags__tmlopts(self):
+        self.activate('ru', skip=True)
         Translation.instance().activate_source('index')
         t = Template('{% load tml %}{% tmlopts with source="navigation" %}{% trs "hello world" %}{% endtmlopts %}')
         rv = t.render(Context({}))
@@ -141,13 +143,18 @@ class DjangoTMLTestCase(SimpleTestCase):
         Translation.instance().activate_source('index')
         t = Template('{% load tml %}{% tmlopts with source=navigation %}{% tr %}Hello {name}{% endtr %}{% endtmlopts %}')
         rv = t.render(Context({'navigation': 'nav', 'name': 'Вася'}))
-        self.assertEquals(rv, 'Привет Вася')
+        self.assertEquals(rv, 'Hello Вася')
 
         Translation.instance().activate_source('index')
         t = Template('{% load tml %}{% tmlopts with source=navigation %}{% tmlopts with source=basic %}{% tr %}Hello {name}{% endtr %}{% endtmlopts %}{% endtmlopts %}')
+        # pytest.set_trace()
         rv = t.render(Context({'navigation': 'nav', 'basic': 'base', 'name': 'Вася'}))
-        self.assertEquals(rv, 'Привет Вася')
-        Translation.instance().deactivate_source()
+        self.assertEquals(rv, 'Hello Вася')
+        # Translation.instance().deactivate_source()
+
+        self.activate("en")
+        Translation.instance().activate_source('')
+
 
     def test_blocktrans(self):
         t = Translation.instance(tml_settings=WithDefaultSettings())
@@ -171,7 +178,7 @@ class DjangoTMLTestCase(SimpleTestCase):
         self.assertEquals(to_string('Привет Вася and Петя'), t.render(Context({'name':['Вася','Петя'], 'last_separator': 'and'})))
 
     def test_viewing_user(self):
-        self.activate('ru')
+        self.activate('ru', tml_settings=WithDefaultSettings())
         set_viewing_user({'name':'John','gender':'male'})
         self.assertEquals('Mr', tr('honorific'))
         set_viewing_user('female')
