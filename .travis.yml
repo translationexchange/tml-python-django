@@ -21,7 +21,7 @@ matrix:
 install:
   - pip install --upgrade pip
   - pip install -r requires_test.txt
-  - pip install pytml[pylibmc,memcached]>=0.2.6
+  - pip install tml[pylibmc,memcached]>=0.2.6
   - pip install $DJANGO
   - pip install --upgrade coveralls
 script:

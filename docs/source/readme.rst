@@ -16,7 +16,7 @@ Services: memcached
 
 The list of dependencies::
 
-    pytml>=0.2.1
+    tml>=0.2.6
     django>=1.7
 
 
