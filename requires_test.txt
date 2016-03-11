@@ -1,4 +1,3 @@
-pytml[pylibmc,memcached]>=0.1.0
 pytest==2.9.0
 coverage==4.0.3
 pytest-cov==2.2.1
