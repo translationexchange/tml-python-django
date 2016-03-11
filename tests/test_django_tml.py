@@ -1,5 +1,5 @@
-from __future__ import absolute_import, unicode_literals
 # encoding: UTF-8
+from __future__ import absolute_import, unicode_literals
 import six
 from os.path import dirname
 from copy import deepcopy
