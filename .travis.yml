@@ -12,7 +12,7 @@ env:
   - DJANGO_VERSION=1.7.11
   - DJANGO_VERSION=1.8.8
   - DJANGO_VERSION=1.9.1
-  - DJANGO_VERSION="-e git+https://github.com/django/django.git@master#egg=Django"
+  - DJANGO_TRUNK="-e git+https://github.com/django/django.git@master#egg=Django"
 matrix:
   fast_finish: true
   allow_failures:
@@ -22,6 +22,7 @@ install:
   - pip install -r requires_test.txt
   - pip install tml[pylibmc,memcached]>=0.2.6
   - pip install -q Django==$DJANGO_VERSION
+  - pip install -q $DJANGO_TRUNK
   - pip install --upgrade coveralls
 script:
   - py.test --cov-report term-missing --cov=django_tml tests
