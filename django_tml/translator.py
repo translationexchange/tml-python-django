@@ -167,8 +167,7 @@ class Translation(LoggerMixin):
         self.reset_context()
 
     def activate_tml(self, source, access_token=None, translator=None, locale=None):
-        if access_token:
-            self.set_access_token(access_token)
+        self.set_access_token(access_token)
         if translator:
             self.set_translator(translator)
         self.activate_source(source)
@@ -346,8 +345,8 @@ class Translation(LoggerMixin):
         as the provided language codes are taken from the HTTP request. See also
         <https://www.djangoproject.com/weblog/2007/oct/26/security-fix/>.
         """
-        _supported = self.supported_locales
         if lang_code:
+            _supported = self.supported_locales
             # if fr-ca is not supported, try fr.
             generic_lang_code = lang_code.split('-')[0]
             for code in (lang_code, generic_lang_code):
