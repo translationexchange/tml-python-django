@@ -29,7 +29,7 @@ INSTALLED_APPS = (
 )
 ```
 
-Add tml middleware to MIDDLEWARE_CLASSES setting:
+Add TML middleware to MIDDLEWARE_CLASSES setting:
 
 ```
 MIDDLEWARE_CLASSES = (
@@ -44,9 +44,8 @@ Then add the following TML configuraiton to setting file:
 TML = {
     'environment': 'dev',
     'application': {
-        'key': '#',   # add application key from [TranslationExchange dashboard](https://dashboard.translationexchange.com/)
-        'path': 'https://staging-api.translationexchange.com',
-        'cdn_path': 'http://trex-snapshots.s3-us-west-1.amazonaws.com'},
+        'key': 'YOUR_APPLICATON_KEY',   # add application key from [TranslationExchange dashboard](https://dashboard.translationexchange.com/)
+    },
     'monkeypatch': True,   # support legacy translations
     'cache': {
         'enabled': True,
@@ -81,30 +80,18 @@ To activate inline translation functionality add one more line in the head secti
 
 ### Demo application
 
-For look&feel we will run a demo application that consists of many samples and tml console (iframe app to test your strings).
+The best way to learn about the SDK capabilities is to use the demo application that comes with the SDK. The demo application provides many samples of TML syntax.
 
 Instructions:
 
-```
-1. Clone the latest code from repository tml-python-django:
-git clone git@github.com:translationexchange/tml-python-django.git tml-python-django
-
-2. Navigate to the project demo directory:
-cd tml-python-django/demo
-
-3. (optional) Activate environment
-virtualenv --no-site-packages tmldemo
-. ./tmldemo/bin/activate
-
-4. Install necessary requirements
-pip install -r requirements.txt
-
-5. Execute database migration
-python manage.py migrate
-
-6. Run your demo
-python manage.py runserver
-
+```bash
+$ git clone git@github.com:translationexchange/tml-python-django.git tml-python-django
+$ cd tml-python-django/demo
+$ virtualenv --no-site-packages tmldemo
+$ . ./tmldemo/bin/activate
+$ pip install -r requirements.txt
+$ python manage.py migrate
+$ python manage.py runserver
 ```
 
 ### TML Configuration
@@ -118,4 +105,40 @@ python manage.py runserver
 * ``env_generators`` - Sometimes you do not need to provide substitution token variable. For example, ``viewing_user`` env generator could be substituted by the return value of env generator. By default we return ``request.user``.
 * ``logger`` - TML log that tracks interaction with SDK by http and supressed exceptions while translating string.
 
+
+Links
+==================
+
+* Register on TranslationExchange.com: http://translationexchange.com
+
+* Follow TranslationExchange on Twitter: https://twitter.com/translationx
+
+* Connect with TranslationExchange on Facebook: https://www.facebook.com/translationexchange
+
+* If you have any questions or suggestions, contact us: support@translationexchange.com
+
+
+Copyright and license
+==================
+
+Copyright (c) 2016 Translation Exchange, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
