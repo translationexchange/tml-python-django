@@ -82,16 +82,16 @@ To activate inline translation functionality add one more line in the head secti
 
 The best way to learn about the SDK capabilities is to use the demo application that comes with the SDK. The demo application provides many samples of TML syntax.
 
-Instructions:
+Run the following scripts to setup and run the the Demo application: 
 
 ```bash
-$ git clone git@github.com:translationexchange/tml-python-django.git tml-python-django
+$ git clone git@github.com:translationexchange/tml-python-django.git
 $ cd tml-python-django/demo
 $ virtualenv --no-site-packages tmldemo
 $ . ./tmldemo/bin/activate
 $ pip install -r requirements.txt
 $ python manage.py migrate
-$ python manage.py runserver
+$ python manage.py runserver localhost:8000
 ```
 
 ### TML Configuration
