@@ -59,7 +59,7 @@ TML = {
 }
 ```
 
-To start using tml tags and filters, load tag libraries in the head of your template file:
+To start using TML tags and filters, load tag libraries in the head of your template file:
 
 ```jinja2
 {­% load i18n %­}
