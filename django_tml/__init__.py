@@ -6,7 +6,7 @@ from django.conf import settings
 from tml.logger import get_logger
 
 
-__VERSION__ = '0.1.7'
+__VERSION__ = '0.1.8'
 
 
 def tr(label, data = None, description = None, options = {}):
