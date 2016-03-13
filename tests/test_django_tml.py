@@ -4,6 +4,7 @@ import six
 from os.path import dirname
 from copy import deepcopy
 import pytest
+from mock import patch
 from django.conf import settings
 from django.test import SimpleTestCase
 from gettext import ngettext, gettext
@@ -11,6 +12,7 @@ from django.template import Template
 from django.template.context import Context
 from tml.api.mock import Hashtable as DumbClient
 from tml.context import SourceContext, LanguageContext
+from tml.language import Language
 from tml.exceptions import Error
 from tml.decoration import AttributeIsNotSet
 from tml.translation import Key
@@ -37,6 +39,7 @@ def WithSnapshotSettings():
 def WithDefaultSettings():
     return settings.TML
 
+
 @pytest.mark.usefixtures("activate")
 class DjangoTMLTestCase(SimpleTestCase):
     """ Tests for django tml tranlator """
@@ -47,6 +50,17 @@ class DjangoTMLTestCase(SimpleTestCase):
         t = Translation.instance()
         self.assertEquals(Translation, t.__class__, "Instance returns translator")
         self.assertEquals(t, Translation.instance(), 'singleton')
+
+    def test_select_language(self):
+        t = Translation.instance()
+        t.activate('ru')
+        self.assertEquals('ru', t.locale, 'language exist')
+        t.activate('de')
+        self.assertEquals('en', t.locale, 'lang not exist')
+
+        t.application.languages.append(Language.from_dict(t.application, {'id': 133, 'locale': 'de'}))
+        t.activate('de')
+        self.assertEquals('de', t.locale, 'lang is selected')
 
     def test_languages(self):
         """ Language switch """

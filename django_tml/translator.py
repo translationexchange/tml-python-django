@@ -270,10 +270,7 @@ class Translation(LoggerMixin):
 
     @property
     def supported_locales(self):
-        if self._supported_locales is None:
-            self._supported_locales = [str(locale) for locale in self.application.supported_locales]
-        return self._supported_locales
-
+        return [str(locale) for locale in self.application.supported_locales]
 
     def to_locale(self, language):
         return to_locale(language)
