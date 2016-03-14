@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import six
 from types import FunctionType
 from django.conf import settings as django_settings
-from django.utils.translation.trans_real import to_locale, templatize, deactivate_all, parse_accept_lang_header, language_code_re, language_code_prefix_re
+from django.utils.translation.trans_real import to_locale, templatize, deactivate_all, parse_accept_lang_header, language_code_re, language_code_prefix_re, get_language_from_path
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.module_loading import import_string
 from tml import configure, build_context, Key, with_block_options
@@ -160,9 +160,9 @@ class Translation(LoggerMixin):
             Args:
                 locale (string): selected locale
         """
-        if not dry_run:
-            if not locale in self.supported_locales:
-                locale = self.config.default_locale
+        # if not dry_run:
+        #     if not locale in self.supported_locales:
+        #         locale = self.config.default_locale
         self.locale = locale
         self.reset_context()
 
@@ -286,7 +286,10 @@ class Translation(LoggerMixin):
         code, otherwise this is skipped for backwards compatibility.
         """
         if check_path:
-            lang_code = self.get_language_from_path(request.path_info)
+            if not self.context_configured():  # fallback to real
+                lang_code = get_language_from_path(request.path_info)
+            else:
+                lang_code = self.get_language_from_path(request.path_info)
             if lang_code is not None:
                 return lang_code
 

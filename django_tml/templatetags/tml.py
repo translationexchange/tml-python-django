@@ -36,37 +36,16 @@ register = Library()
 RE_VARIABLE = r'.*\{\{\s(\w+)\s\}\}.*'
 
 
-def handle_tml_exception(exc, silent=True):
+def handle_tml_exception(exc, strict=False):
     if isinstance(exc, (ParseError, InvalidTokenSyntax, DecorationParseError, UnsupportedTag, AttributeIsNotSet, EngineError, OptionsError)):
         msg = "Exception `%s` is raised with message `%s`. For details see stack trace." % (exc.__class__.__name__, str(exc))
-        if not silent: # useful for debugging
+        if strict: # useful for debugging
             six.reraise(TemplateSyntaxError, TemplateSyntaxError(msg), sys.exc_info()[2])
         return ''
+    else:   # unknown exception
+        six.reraise(exc.__class__, exc, sys.exc_info()[2])
 
-
-class TmlStringMixin(object):
-
-    def is_translated_string(self, error):
-        return not isinstance(error, TranslationIsNotExists)
-
-    def wrap_label(self, text, key, translated):
-        if self.nowrap:
-            # nowrap flag is set
-            return text
-        return self.wrap_string(text, key, translated)
-
-    def wrap_string(self, text, key, translated):
-        translator = get_current_translator()
-        if not translator or not translator.is_inline():
-            return text
-        # @todo: 1. tml_pending must handle: if ongoing to API
-        # 2. if translation came and has flag (attribute) `locked` => tml_locked
-        # 3. see ruby decorators/html.rb
-        class_name = 'tml_translated' if translated else 'tml_not_translated'
-        return six.u('<tml:label class="tml_translatable %(class_name)s" data-translation_key="%(key)s" data-target_locale="%(locale)s">%(text)s</tml:label>') % ({'key':key.key, 'text':text, 'class_name': class_name, 'locale': Translation.instance().locale})
-
-
-class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
+class TranslateNode(BaseTranslateNode, LoggerMixin):
     def __init__(self, filter_expression, nowrap = False, asvar=None, message_context=None):
         """ Tag for {% trs %}
             filter_expression (string): translateable string expr
@@ -117,15 +96,14 @@ class TranslateNode(BaseTranslateNode, TmlStringMixin, LoggerMixin):
                 translated text, key, translated
         """
         try:
-            key, trans_value, error = Translation.instance().tr(label, data={}, description=description, options={})
-            translated = self.is_translated_string(error)
-            return self.wrap_label(trans_value, key, translated)
+            key, trans_value, error = Translation.instance().tr(label, data={}, description=description, options={'nowrap': self.nowrap})
+            return trans_value
         except Exception as e:
             self.exception(e)
-            return handle_tml_exception(e)
+            return handle_tml_exception(e, strict=Translation.instance().config.get('strict_mode', False))
 
 
-class BlockTranslateNode(TmlStringMixin, BaseBlockTranslateNode, LoggerMixin):
+class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
 
     def __init__(self, extra_context, singular, plural, countervar, counter, description, trimmed, nowrap = False, legacy = False, asvar=None):
         """ Block for {% tr %} {% endtr %}
@@ -192,12 +170,11 @@ class BlockTranslateNode(TmlStringMixin, BaseBlockTranslateNode, LoggerMixin):
                 translated text, key, translated
         """
         try:
-            key, trans_value, error = Translation.instance().tr(label, data=data, description=description, options={})
-            translated = self.is_translated_string(error)
-            return self.wrap_label(trans_value, key, translated)
+            key, trans_value, error = Translation.instance().tr(label, data=data, description=description, options={'nowrap': self.nowrap})
+            return trans_value
         except Exception as e:
             self.exception(e)
-            return handle_tml_exception(e)
+            return handle_tml_exception(e, strict=Translation.instance().config.get('strict_mode', False))
 
 
 class LegacyBlockTranlationNode(BlockTranslateNode):
