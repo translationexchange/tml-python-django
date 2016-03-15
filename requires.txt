@@ -1,2 +1,2 @@
-tml[pylibmc]>=0.2.7
+tml[pylibmc]>=0.2.8
 django>=1.7
