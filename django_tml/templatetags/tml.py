@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 import re
+import json
 from django.template import (Node, Variable, TemplateSyntaxError,
      Library)
 from django.template.base import TOKEN_TEXT, TOKEN_VAR
@@ -20,9 +21,10 @@ from django_tml import Translation
 from tml import legacy
 from django.templatetags.i18n import BlockTranslateNode as BaseBlockTranslateNode, TranslateNode as BaseTranslateNode
 from tml.translation import Key
+from tml.strings import to_string
 from tml.dictionary import TranslationIsNotExists
 from tml.session_vars import get_current_translator
-from tml.logger import LoggerMixin
+from tml.logger import LoggerMixin, get_logger
 from tml.decoration.parser import ParseError as DecorationParseError
 from tml.token import InvalidTokenSyntax
 from tml.rules.engine import Error as EngineError
@@ -131,6 +133,7 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
 
     def render(self, context, nested=False):
         """ Render result """
+        option_delim = '_'
         if self.description:
             description = self.description.resolve(context)
         else:
@@ -138,9 +141,27 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
 
         custom_data = {}
         for var, val in list(self.extra_context.items()):
-            custom_data[var] = val.resolve(context)
+            cur_val = val.resolve(context)
+            if var.endswith('options'):
+                cur_val = json.loads(cur_val)
+            custom_data[var] = cur_val
+        del_keys = set()
+        for var, val in custom_data.iteritems():
+            if var.endswith('options'):
+                del_keys.add(var)
+                ref_var = var.split(option_delim)[0]
+                rev_val = custom_data[ref_var]
+                if isinstance(rev_val, list):   # if already list check sizes
+                    if len(rev_val) == 1:   #
+                        rev_val.extend([None, val])
+                    elif len(rev_val) == 2:
+                        rev_val.append(val)
+                else:
+                    rev_val = [rev_val, None, val]
+                custom_data[ref_var] = rev_val
+        while del_keys:
+            custom_data.pop(del_keys.pop())
         context.update(custom_data)
-
         if self.plural and self.countervar and self.counter:
             # Plural:
             count = self.counter.resolve(context)
@@ -204,10 +225,17 @@ class TmlOptionsNode(Node):
 
     def render(self, context):
         with Translation.instance().with_block_options(
-                source=self.source.resolve(context),
-                target_locale=self.target_locale):
+            **self.prepare_options(context)):
             output = self.nodelist.render(context)
         return output
+
+    def prepare_options(self, context):
+        opts = {}
+        if self.source:
+            opts['source'] = self.source.resolve(context)
+        if self.target_locale:
+            opts['target_locale'] = self.target_locale.resolve(context)
+        return opts
 
 
 @register.tag("tr")
@@ -501,3 +529,39 @@ def do_tr_locale(parser, token):
     nodelist = parser.parse(close_token)
     parser.delete_first_token()
     return TmlOptionsNode(nodelist, locale=target_locale)
+
+
+@register.filter(name='trattribute')
+def trattribute(context, attr):
+    """
+    {% tr with user=some_user|trattribute:'name'|options:'{""}' %}
+    """
+
+    return [context, to_string(':{}').format(attr)]
+
+
+@register.filter(name='trproperty')
+def trproperty(context, attr):
+    """
+    {% tr with user=some_user|trproperty:'name'|options:'{""}' %}
+    """
+    return trattribute(context, attr)
+
+@register.filter(name='trvalue')
+def trvalue(context, val):
+    """with user=user|trvalue:user.name"""
+    return [context, val]
+
+@register.filter(name='trs')
+def trs(value, description=None):
+    """user.name|trs
+    {­% tr with city="Los Angeles"|trs %­} Welcome to {­city­} {­% endtr %­}
+    """
+    try:
+        _, trans_value, _ = Translation.instance().tr(
+            value, data={}, description=description, options={})
+        return trans_value
+    except Exception as e:
+        get_logger().exception(e)
+        return value
+        # return handle_tml_exception(e, strict=Translation.instance().config.get('strict_mode', False))
