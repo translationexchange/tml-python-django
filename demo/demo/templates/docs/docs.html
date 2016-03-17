@@ -154,7 +154,7 @@ anna = {"name": "Anna", "gender": "anna"}
             <pre><code class="language-python">{% verbatim %} {% trs "Hello world" %} {% endverbatim %}</code></pre>
 
 
-            <pre><code class="language-python">{% verbatim %} {% language "ru" %}{% trs "Hello world" %} {% endlanguage %}{% endverbatim %}</code></pre>
+            <pre><code class="language-python">{% verbatim %} {% trlocale "ru" %}{% trs "Hello world" %} {% endtrlocale %}{% endverbatim %}</code></pre>
 
             {% trs "You can wrap your translation strings into source:" %}
 
@@ -226,15 +226,13 @@ anna = {"name": "Anna", "gender": "anna"}
             <p>{% trs "Translations can be nested." %}</p>
             <div class="example">
               <div class="title">{% trs "example" %}</div>
-              <pre class="code"><code class="language-python">{&shy;% trs "Los Angeles" as city %&shy;}
-{&shy;% tr with city=city %&shy;} Welcome to {&shy;city&shy;} {&shy;% endtr %&shy;}</code></pre>
+              <pre class="code"><code class="language-python">
+{&shy;% tr with city="Los Angeles"|trs %&shy;} Welcome to {&shy;city&shy;} {&shy;% endtr %&shy;}</code></pre>
 
               <div class="content">
-              {% trs "Los Angeles" as city %}
-              {% tr with city=city %} Welcome to {city} {% endtr %}
+              {% tr with city="Los Angeles"|trs %} Welcome to {city} {% endtr %}
                 <br>
-              {% trs "Moscow" as city %}
-              {% tr with city=city %} Welcome to {city} {% endtr %}
+              {% tr with city="Moscow"|trs %} Welcome to {city} {% endtr %}
               </div>
             </div>
 
@@ -242,11 +240,9 @@ anna = {"name": "Anna", "gender": "anna"}
             </p>
             <div class="example">
               <div class="title">{% trs "example" %}</div>
-              <pre class="code"><code class="language-python">{&shy;% trs "registration page" as registration %&shy;}
-{&shy;% tr with link="" %&shy;}Please visit our [link: {registration}] to join our site. {&shy;% endtr %&shy;}</code></pre>
+              <pre class="code"><code class="language-python">{&shy;% tr with link="" registration="registration page"|trs %&shy;}Please visit our [link: {registration}] to join our site. {&shy;% endtr %&shy;}</code></pre>
               <div class="content">
-                {% trs "registration page" as registration %}
-                {% tr with link="" %}Please visit our [link: {registration}] to join our site. {% endtr %}
+                {% tr with link="" registration="registration page"|trs %}Please visit our [link: {registration}] to join our site. {% endtr %}
               </div>
             </div>
 
@@ -262,7 +258,7 @@ anna = {"name": "Anna", "gender": "anna"}
               <div class="title">{% tr %}example{% endtr %}</div>
               <pre class="code"><code class="language-ruby">{&shy;% tr with user=users.michael.name %&shy;} Dear {user} {&shy;% endtr %&shy;}</code></pre>
               <div class="content">
-                {% tr with user=users.michael.name %} Dear {user} {% endtr %}
+                {% tr with user=users.michael|trproperty:'name' %} Dear {user} {% endtr %}
               </div>
             </div>
 
@@ -322,9 +318,9 @@ anna = {"name": "Anna", "gender": "anna"}
               <div class="content">
                 {% tr with count=1 %}You have {count||message}{% endtr %}
                 <br>
-                {% tr with count=2 %}You have {count||message,messages}{% endtr %}
+                {% tr with count=2 %}You have {count||message}{% endtr %}
                 <br>
-                {% tr with count=10 %}You have {count||message,messages}{% endtr %}
+                {% tr with count=10 %}You have {count||message}{% endtr %}
               </div>
             </div>
 
@@ -527,7 +523,7 @@ anna = {"name": "Anna", "gender": "anna"}
 
 
             <h2>{% trs "Array Tokens" %}</h2>
-
+            {% comment %}
             {% trs "Default options&#58;" %}
 
             <pre><code class="language-python">{&shy;% tr with
@@ -588,7 +584,7 @@ tpl="$0" %&shy;} {&shy;% endtr &shy;%}</code></pre>
                 {% endfor %}
               </div>
             </div>
-
+            {% endcomment %}
             <h2>{% trs "Genders" %}</h2>
             <p>
               {% trs "Similarly to the numeric rules, some language have dependencies on the gender." %}
@@ -785,10 +781,10 @@ tpl="$0" %&shy;} {&shy;% endtr &shy;%}</code></pre>
   {&shy;% tr with actor=anna_name %&shy;}{actor::nom} тестирует это приложение{&shy;% endtr %&shy;}<br>
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
-                {%  language 'ru' %}
+                {% trlocale 'ru' %}
                   {% trs users.anna.name as anna_name nowrap %}
                   {% tr with actor=anna_name  %}{actor::nom} тестирует это приложение{% endtr %}<br>
-                {% endlanguage %}
+                {% endtrlocale %}
               </div>
             </div>
 
@@ -801,10 +797,10 @@ tpl="$0" %&shy;} {&shy;% endtr &shy;%}</code></pre>
   {&shy;% tr with actor=users.anna target=users.michael %&shy;}{actor|| пригласил, пригласила} {target::gen} на вечеринку{&shy;% endtr %&shy;}<br>
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
-                {%  language 'ru' %}
+                {%  trlocale 'ru' %}
                   {% trs users.michael.name as michael_name nowrap %}
                   {% tr with actor=users.anna target=michael_name %}{actor||пригласил,пригласила} {target::gen} на вечеринку{% endtr %}<br>
-                {% endlanguage %}<br>
+                {% endtrlocale %}<br>
               </div>
             </div>
 
@@ -817,11 +813,11 @@ tpl="$0" %&shy;} {&shy;% endtr &shy;%}</code></pre>
   {&shy;% endfor %&shy;}
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
-                {%  language 'ru' %}
-                  {% for item in users %}
+                {%  trlocale 'ru' %}
+                  {% for item in user_list %}
                     {% tr with actor=users.michael target=item %}{actor||подарил,подарила} подарок {target::dat}{% endtr %}<br>
                   {% endfor %}
-                {% endlanguage %}
+                {% endtrlocale %}
               </div>
             </div>
 
@@ -833,10 +829,10 @@ tpl="$0" %&shy;} {&shy;% endtr &shy;%}</code></pre>
   {&shy;% tr with actor=users.anna target=michael_name %&shy;}{actor|| увидел, увидела} {target::acc} на вечеринке{&shy;% endtr %&shy;}<br>
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
-                {%  language 'ru' %}
+                {% trlocale 'ru' %}
                     {% trs users.michael.name as michael_name nowrap %}
                     {% tr with actor=users.anna target=michael_name %}{actor||увидел,увидела} {target::acc} на вечеринке{% endtr %}<br>
-                {% endlanguage %}
+                {% endtrlocale %}
               </div>
             </div>
 
@@ -849,11 +845,11 @@ tpl="$0" %&shy;} {&shy;% endtr &shy;%}</code></pre>
   {&shy;% tr with actor=anna_name target=michael_name %&shy;}{actor} гордится {target::ins}{&shy;% endtr %&shy;}<br>
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
-                {%  language 'ru' %}
+                {%  trlocale 'ru' %}
                   {% trs users.anna.name as anna_name nowrap %}
                   {% trs users.michael.name as michael_name nowrap %}
                   {% tr with actor=anna_name target=michael_name  %}{actor} гордится {target::ins}{% endtr %}<br>
-                {% endlanguage %}
+                {% endtrlocale %}
               </div>
             </div>
 
@@ -867,12 +863,12 @@ tpl="$0" %&shy;} {&shy;% endtr &shy;%}</code></pre>
   {&shy;% tr with actor=michael_name target=anna_name %&shy;}{actor} думает о {target::pre}{&shy;% endtr %&shy;}<br>
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
-                {%  language 'ru' %}
+                {% trlocale 'ru' %}
                   {% trs users.michael.name as michael_name nowrap %}
                   {% trs users.anna.name as anna_name nowrap %}
                   {% tr with actor=anna_name target=michael_name nowrap %}{actor} думает о {target::pre}{% endtr %}<br>
                   {% tr with actor=michael_name target=anna_name nowrap %}{actor} думает о {target::pre}{% endtr %}<br>
-                {% endlanguage %}
+                {% endtrlocale %}
               </div>
             </div>
 

@@ -22,5 +22,7 @@ urlpatterns = [
     url(r'^$', views.IndexView.as_view(template_name='docs/index.html'), name="index"),
     url(r'^docs/$', views.DocsView.as_view(template_name='docs/docs.html'), name="docs"),
     url(r'^console/$', views.ConsoleView.as_view(template_name='docs/console.html'), name="console"),
+    url(r'^dummy/$', views.DummyView.as_view(template_name='docs/dummy.html'), name="console"),
     url(r'^translate/$', views.translate),
+
 ]

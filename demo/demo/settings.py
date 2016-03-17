@@ -135,19 +135,19 @@ TML = {
     #     'backend': 'pylibmc',
     #     'namespace': 'foody'
     # },
-    # 'cache': {
-    #     'enabled': False,
-    #     # 'adapter': 'file',
-    #     # 'version': '20160302123930',
-    #     # 'path': pj(BASE_DIR, 'tml/cache')
-    #    # 'path': pj(os.path.dirname(BASE_DIR), 'tests/fixtures/snapshot.tar.gz')
-    # },
+    'cache': {
+        'enabled': True,
+        'adapter': 'file',
+        'version': '20160317101236',
+        'path': pj(BASE_DIR, 'tml/cache'),
+       # 'path': pj(os.path.dirname(BASE_DIR), 'tests/fixtures/snapshot.tar.gz')
+    },
     # 'agent': {
     #     'enabled': True,
     #     'type':    'agent',
     #     'cache':   86400  # timeout every 24 hours
     # },
-    'data_preprocessors': ('tml.tools.list.preprocess_lists',),
+    #'data_preprocessors': ('tml.tools.list.preprocess_lists',),
     'env_generators': ('tml.tools.viewing_user.get_viewing_user',),
     'logger': {
         'path': pj(BASE_DIR, 'logs', 'tml.log')
