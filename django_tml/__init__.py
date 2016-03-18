@@ -4,7 +4,7 @@ from django.utils import translation
 from .translator import Translation
 from django.conf import settings
 from tml.logger import get_logger
-from tml import get_context as get_current_context, get_current_language, get_current_locale, with_block_options
+from tml import get_context as get_current_context, get_current_language,  with_block_options
 
 
 __VERSION__ = '0.1.8'
@@ -46,6 +46,9 @@ def deactivate_source():
 
 def get_languages():
     return Translation.instance().languages
+
+def get_current_locale():
+    return Translation.instance().locale
 
 if settings.TML.pop('monkeypatch', False):
     translation._trans = Translation.instance()

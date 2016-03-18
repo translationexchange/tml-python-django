@@ -57,6 +57,6 @@ def get_client(key, access_token):
 TML = {
     'api_client': get_client,
     'cache': {'enabled': False},
-    'data_preprocessors': ('tml.tools.list.preprocess_lists',),
+    'data_preprocessors': (),
     'env_generators': ('tml.tools.viewing_user.get_viewing_user',)
 }

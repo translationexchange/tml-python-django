@@ -20,6 +20,7 @@ from django.utils.safestring import SafeData, mark_safe
 from django_tml import Translation
 from tml import legacy
 from django.templatetags.i18n import BlockTranslateNode as BaseBlockTranslateNode, TranslateNode as BaseTranslateNode
+from tml.utils import merge_opts
 from tml.translation import Key
 from tml.strings import to_string
 from tml.dictionary import TranslationIsNotExists
@@ -133,6 +134,7 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
 
     def render(self, context, nested=False):
         """ Render result """
+        tr_options = {}  # translation options e.g. safe=False|true
         option_delim = '_'
         if self.description:
             description = self.description.resolve(context)
@@ -145,6 +147,7 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
             if var.endswith('options'):
                 cur_val = json.loads(cur_val)
             custom_data[var] = cur_val
+        tr_options = custom_data.pop('tr_options', {})
         del_keys = set()
         for var, val in custom_data.iteritems():
             if var.endswith('options'):
@@ -172,8 +175,7 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
                 label, void = self.render_token_list(self.plural)
         else:
             label, void = self.render_token_list(self.singular)
-
-        result = self.translate(label, context, description)
+        result = self.translate(label, context, description, options=tr_options)
         if self.asvar:
             context[self.asvar] = result
             return ''
@@ -181,7 +183,7 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
             return result
 
 
-    def translate(self, label, data, description):
+    def translate(self, label, data, description, options=None):
         """ Translate label
             Args:
                 label (string): translated label
@@ -191,7 +193,7 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
                 translated text, key, translated
         """
         try:
-            key, trans_value, error = Translation.instance().tr(label, data=data, description=description, options={'nowrap': self.nowrap})
+            key, trans_value, error = Translation.instance().tr(label, data=data, description=description, options=merge_opts(options, nowrap=self.nowrap))
             return trans_value
         except Exception as e:
             self.exception(e)
@@ -200,7 +202,7 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
 
 class LegacyBlockTranlationNode(BlockTranslateNode):
     """ Tranlation with back support """
-    def translate(self, label, data, description):
+    def translate(self, label, data, description, options=None):
         """ Fetch tranlation
             Args:
                 label (string): label in format for sprintf
@@ -209,7 +211,7 @@ class LegacyBlockTranlationNode(BlockTranslateNode):
                 tranlation
         """
         try:
-            _, trans_value, _ = Translation.instance().tr_legacy(label, data=data, description=description, options={})
+            _, trans_value, _ = Translation.instance().tr_legacy(label, data=data, description=description, options=options)
             return trans_value   # we do not wrap here (todo: should think)
         except Exception as e:
             self.exception(e)
