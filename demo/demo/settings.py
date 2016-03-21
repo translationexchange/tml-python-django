@@ -138,7 +138,7 @@ TML = {
     'cache': {
         'enabled': True,
         'adapter': 'file',
-        'version': '20160317101236',
+        'version': 'current',
         'path': pj(BASE_DIR, 'tml/cache'),
        # 'path': pj(os.path.dirname(BASE_DIR), 'tests/fixtures/snapshot.tar.gz')
     },

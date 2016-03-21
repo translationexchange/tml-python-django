@@ -786,11 +786,11 @@ people_options='{"limit": 10, "joiner": "and", "separator": ", "}' %&shy;} {&shy
             <div class="example">
               <div class="title">{% trs "example" %}</div>
                     <pre class="code"><code class="language-python">{&shy;%  language 'ru' %&shy;}
-  {&shy;% tr with actor=users.anna|trs target=users.michael.name|trs %&shy;}{actor|| пригласил, пригласила} {target::gen} на вечеринку{&shy;% endtr %&shy;}<br>
+  {&shy;% tr with actor=users.anna|trproperty:'name'|trs target=users.michael.name|trs %&shy;}{actor|| пригласил, пригласила} {target::gen} на вечеринку{&shy;% endtr %&shy;}<br>
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
                 {%  trlocale 'ru' %}
-                  {% tr with actor=users.anna|trs target=users.michael.name|trs %}{actor||пригласил,пригласила} {target::gen} на вечеринку{% endtr %}<br>
+                  {% tr with actor=users.anna|trproperty:'name'|trs target=users.michael.name|trs %}{actor||пригласил,пригласила} {target::gen} на вечеринку{% endtr %}<br>
                 {% endtrlocale %}<br>
               </div>
             </div>
@@ -816,11 +816,11 @@ people_options='{"limit": 10, "joiner": "and", "separator": ", "}' %&shy;} {&shy
             <div class="example">
               <div class="title">{% trs "example" %}</div>
                     <pre class="code"><code class="language-python">{&shy;%  language 'ru' %&shy;}
-  {&shy;% tr with actor=users.anna|trs target=users.michael.name|trs %&shy;}{actor|| увидел, увидела} {target::acc} на вечеринке{&shy;% endtr %&shy;}<br>
+  {&shy;% tr with actor=users.anna|trproperty:'name'|trs target=users.michael.name|trs %&shy;}{actor|| увидел, увидела} {target::acc} на вечеринке{&shy;% endtr %&shy;}<br>
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
                 {% trlocale 'ru' %}
-                    {% tr with actor=users.anna|trs target=users.michael.name|trs %}{actor||увидел,увидела} {target::acc} на вечеринке{% endtr %}<br>
+                    {% tr with actor=users.anna|trproperty:'name'|trs target=users.michael.name|trs %}{actor||увидел,увидела} {target::acc} на вечеринке{% endtr %}<br>
                 {% endtrlocale %}
               </div>
             </div>
