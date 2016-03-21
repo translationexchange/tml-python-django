@@ -790,7 +790,7 @@ people_options='{"limit": 10, "joiner": "and", "separator": ", "}' %&shy;} {&shy
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
                 {%  trlocale 'ru' %}
-                  {% tr with actor=users.anna|trproperty:'name'|trs target=users.michael.name|trs %}{actor||пригласил,пригласила} {target::gen} на вечеринку{% endtr %}<br>
+                  {% tr with actor=users.anna target=users.michael.name|trs %}{actor||пригласил,пригласила} {target::gen} на вечеринку{% endtr %}<br>
                 {% endtrlocale %}<br>
               </div>
             </div>
@@ -820,7 +820,7 @@ people_options='{"limit": 10, "joiner": "and", "separator": ", "}' %&shy;} {&shy
 {&shy;% endlanguage %&shy;}</code></pre>
               <div class="content">
                 {% trlocale 'ru' %}
-                    {% tr with actor=users.anna|trproperty:'name'|trs target=users.michael.name|trs %}{actor||увидел,увидела} {target::acc} на вечеринке{% endtr %}<br>
+                    {% tr with actor_name=users.anna.name|trs actor=users.anna|trproperty:'name' target=users.michael.name|trs %}{actor||увидел,увидела} {target::acc} на вечеринке{% endtr %}<br>
                 {% endtrlocale %}
               </div>
             </div>
