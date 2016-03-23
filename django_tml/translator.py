@@ -57,6 +57,7 @@ class Translation(LoggerMixin):
         self.translator = None
         self.init(tml_settings)
         self.context_class = tml_settings.get('context_class', None)
+        self.__before_response = set()
         LoggerMixin.__init__(self)
 
     def init(self, tml_settings):
@@ -155,14 +156,11 @@ class Translation(LoggerMixin):
         """ getter to current language """
         return self.locale or self.config.default_locale
 
-    def activate(self, locale, dry_run=False):
+    def activate(self, locale):
         """ Activate selected language
             Args:
                 locale (string): selected locale
         """
-        # if not dry_run:
-        #     if not locale in self.supported_locales:
-        #         locale = self.config.default_locale
         self.locale = locale
         self.reset_context()
 
@@ -281,29 +279,34 @@ class Translation(LoggerMixin):
         show. Only languages listed in settings.LANGUAGES are taken into account.
         If the user requests a sublanguage where we have a main language, we send
         out the main language.
-
-        If check_path is True, the URL path prefix will be checked for a language
-        code, otherwise this is skipped for backwards compatibility.
         """
-        if check_path:
-            if not self.context_configured():  # fallback to real
-                lang_code = get_language_from_path(request.path_info)
+        def get_from_param(request):   # add to flask
+            query_param = self.config.locale.get('query_param')
+            if request.method.lower() == 'get':
+                return request.GET.get(query_param, None)
             else:
-                lang_code = self.get_language_from_path(request.path_info)
-            if lang_code is not None:
-                return lang_code
+                return request.POST.get(query_param, None)
 
-        if hasattr(request, 'session'):
-            # for backwards compatibility django_language is also checked (remove in 1.8)
-            lang_code = request.session.get(LANGUAGE_SESSION_KEY, request.session.get('django_language'))
-            if lang_code is not None:
-                return lang_code
-
+        locale = get_language_from_path(request.path_info) or get_from_param(request)
         cookie_handler = TmlCookieHandler(request, self.application_key)
-        lang_code = cookie_handler.tml_locale
-        if lang_code is not None:
-            return lang_code
+        if not locale:
+            locale = cookie_handler.tml_locale
+            if not locale:
+                if self.config.locale.get('subdomain', None):
+                    locale = ".".join(request.META['HTTP_HOST'].split('.')[:-2])
+                elif hasattr(request, 'session'):
+                    # for backwards compatibility django_language is also checked (remove in 1.8)
+                    lang_code = request.session.get(LANGUAGE_SESSION_KEY, request.session.get('django_language'))
+                    if lang_code is not None:
+                        locale = lang_code
+                else:
+                    locale = self.get_preferred_languages(request)
+        else:
+            self.__before_response.add(
+                lambda response: cookie_handler.update(response, locale=locale))
+        return locale
 
+    def get_preferred_languages(self, request):
         accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
         for accept_lang, unused in parse_accept_lang_header(accept):
             if accept_lang == '*':
@@ -313,56 +316,13 @@ class Translation(LoggerMixin):
             if lang_code is not None:
                 return accept_lang
 
-        return self.context.application.default_locale
-
-    def get_language_from_path(self, path, strict=False):
-        """
-        Returns the language-code if there is a valid language-code
-        found in the `path`.
-
-        If `strict` is False (the default), the function will look for an alternative
-        country-specific variant when the currently checked is not found.
-        """
-        regex_match = language_code_prefix_re.match(path)
-        if not regex_match:
-            return None
-        lang_code = regex_match.group(1)
-        try:
-            return self.get_supported_language_variant(lang_code, strict=strict)
-        except LookupError:
-            return None
-
-
-    def get_supported_language_variant(self, lang_code, strict=False):
-        """
-        Returns the language-code that's listed in supported languages, possibly
-        selecting a more generic variant. Raises LookupError if nothing found.
-
-        If `strict` is False (the default), the function will look for an alternative
-        country-specific variant when the currently checked is not found.
-
-        lru_cache should have a maxsize to prevent from memory exhaustion attacks,
-        as the provided language codes are taken from the HTTP request. See also
-        <https://www.djangoproject.com/weblog/2007/oct/26/security-fix/>.
-        """
-        if lang_code:
-            _supported = self.supported_locales
-            # if fr-ca is not supported, try fr.
-            generic_lang_code = lang_code.split('-')[0]
-            for code in (lang_code, generic_lang_code):
-                if self.check_for_language(code):
-                    return code
-            if not strict:
-                # if fr-fr is not supported, try fr-ca.
-                for supported_code in _supported:
-                    if supported_code.startswith(generic_lang_code + '-'):
-                        return supported_code
-        raise LookupError(lang_code)
-
     def templatize(self, src, origin=None):
         return templatize(src, origin)
 
-    def deactivate_all(self):
+    def deactivate_all(self, response=None):
+        while self.__before_response:
+            fn = self.__before_response.pop()
+            fn(response)
         self.deactivate()
         self.deactivate_source()
 

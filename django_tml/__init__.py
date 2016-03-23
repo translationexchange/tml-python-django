@@ -31,8 +31,8 @@ def pgettext(context, label):
 def npgettext(context, singular, plural, number):
     return Translation.instance().npgettext(context, singular, plural, number)
 
-def activate(locale, dry_run=False, tml_settings=None):
-    Translation.instance(tml_settings=tml_settings).activate(locale, dry_run=dry_run)
+def activate(locale, tml_settings=None):
+    Translation.instance(tml_settings=tml_settings).activate(locale)
 
 def activate_source(source):
     """ Use source block

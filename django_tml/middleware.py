@@ -27,7 +27,7 @@ class TmlControllerMiddleware(object):
 
     def process_response(self, request, response):
         """ Reset source and flush missed keys """
-        Translation.instance().deactivate_all()
+        Translation.instance().deactivate_all(response)
         self.request = None
         self.translation = None
         return response

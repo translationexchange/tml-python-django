@@ -1,14 +1,16 @@
 from __future__ import absolute_import
 # encoding: UTF-8
-from ..utils import ts
+from json import dumps
 from django.template import Node, Library
 from django.template.loader import render_to_string
-from ..translator import Translation
 from tml.config import CONFIG
 from tml import full_version
-from json import dumps
+from tml.utils import ts
+from ..translator import Translation
+
 
 register = Library()
+
 
 class TmlInlineNode(Node):
     templates = []

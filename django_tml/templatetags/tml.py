@@ -541,6 +541,9 @@ def trattribute(context, attr):
 
     return [context, to_string(':{}').format(attr)]
 
+@register.filter(name='trattr')
+def trattr(*args):
+    return trattribute(*args)
 
 @register.filter(name='trproperty')
 def trproperty(context, attr):
@@ -549,10 +552,18 @@ def trproperty(context, attr):
     """
     return trattribute(context, attr)
 
+@register.filter(name='trprop')
+def trprop(*args):
+    return trproperty(*args)
+
 @register.filter(name='trvalue')
 def trvalue(context, val):
     """with user=user|trvalue:user.name"""
     return [context, val]
+
+@register.filter(name='trval')
+def trval(*args):
+    return trvalue(*args)
 
 @register.filter(name='trs')
 def trs(value, description=None):
