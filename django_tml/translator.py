@@ -291,6 +291,7 @@ class Translation(LoggerMixin):
         cookie_handler = TmlCookieHandler(request, self.application_key)
         if not locale:
             locale = cookie_handler.tml_locale
+            # import pdb; pdb.set_trace()
             if not locale:
                 if self.config.locale.get('subdomain', None):
                     locale = ".".join(request.META['HTTP_HOST'].split('.')[:-2])

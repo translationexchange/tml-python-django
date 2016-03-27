@@ -1,7 +1,10 @@
 from __future__ import absolute_import
 # encoding: UTF-8
+import re
 from django.utils.functional import cached_property
 from django.conf import settings
+from django.template import Template
+from django.template.context import Context
 from tml.exceptions import Error
 from .translator import Translation
 from .tml_cookies import TmlCookieHandler
@@ -32,3 +35,23 @@ class TmlControllerMiddleware(object):
         self.translation = None
         return response
 
+
+
+_HTML_TYPES = ('text/html', 'application/xhtml+xml')
+
+
+class InjectAgentMiddleware(object):
+
+    def process_response(self, request, response):
+        "Insert necessary javascript to set device info cookie."
+        if not getattr(response, 'streaming', False):
+            is_gzipped = 'gzip' in response.get('Content-Encoding', '')
+            is_html = response.get('Content-Type', '').split(';')[0] in _HTML_TYPES
+            if is_html and not is_gzipped:
+                pattern = re.compile(b'</head>', re.IGNORECASE)
+                agent_script = Template('{% load tml_inline %}{% tml_inline_header %}').render(Context({}))
+                # import pdb; pdb.set_trace()
+                response.content = pattern.sub(bytes(agent_script) + b'</head>', response.content)
+                response['Content-Length'] = len(response.content)
+
+        return response
