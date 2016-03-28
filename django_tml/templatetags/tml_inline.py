@@ -15,7 +15,7 @@ register = Library()
 class TmlInlineNode(Node):
     templates = []
 
-    def render(self, data, nested=False):
+    def render(self, render_context, nested=False):
         translation = Translation.instance()
         agent_config = dict((k, v) for k, v in translation.config.get('agent', {}).iteritems())
         agent_host = agent_config.get('host', CONFIG.agent_host())
@@ -34,10 +34,14 @@ class TmlInlineNode(Node):
                 'native_name': language.native_name,
                 'english_name': language.english_name,
                 'flag_url': language.flag_url})
+
         data = {
             'agent_config': dumps(agent_config),
             'agent_host': agent_host,
-            'application_key': translation.application.key}
+            'application_key': translation.application.key,
+            'TML': render_context['request'].TML,
+            'caller': render_context.get('caller', '')}   # tml config
+
         return ''.join([
             render_to_string('django_tml/inline_translations/%s.html' % tpl, data) for tpl in self.templates])
 

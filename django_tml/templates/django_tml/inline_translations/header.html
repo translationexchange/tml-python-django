@@ -1,3 +1,4 @@
+{% if caller == "middleware" or not TML.agent.force_injection %}
 <script>
   (function() {
     var script = window.document.createElement('script');
@@ -13,3 +14,5 @@
 
   })();
 </script>
+
+{% endif %}

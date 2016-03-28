@@ -12,6 +12,9 @@ from .tml_cookies import TmlCookieHandler
 __author__ = 'a@toukmanov.ru, xepa4ep'
 
 
+_HTML_TYPES = ('text/html', 'application/xhtml+xml')
+
+
 class TmlControllerMiddleware(object):
     """ Create source to each view function """
 
@@ -26,32 +29,25 @@ class TmlControllerMiddleware(object):
             access_token=cookie_handler.tml_access_token,
             translator=cookie_handler.tml_translator,
             locale=locale)
+        request.TML = self.translation.config
         return None
 
     def process_response(self, request, response):
-        """ Reset source and flush missed keys """
-        Translation.instance().deactivate_all(response)
+        """Teardown tml"""
+        if self.translation.config['agent']['enabled'] and self.translation.config['agent']['force_injection']:
+            if not getattr(response, 'streaming', False):
+                is_gzipped = 'gzip' in response.get('Content-Encoding', '')
+                is_html = response.get('Content-Type', '').split(';')[0] in _HTML_TYPES
+                if is_html and not is_gzipped:
+                    pattern = re.compile(b'</head>', re.IGNORECASE)
+                    agent_script = Template('{% load tml_inline %}{% tml_inline_header %}').render(Context({'request': request, 'caller': 'middleware'}))
+                    # import pdb; pdb.set_trace()
+                    response.content = pattern.sub(bytes(agent_script) + b'</head>', response.content)
+                    response['Content-Length'] = len(response.content)
+
+        # teardown
+        self.translation.deactivate_all(response)
         self.request = None
         self.translation = None
         return response
 
-
-
-_HTML_TYPES = ('text/html', 'application/xhtml+xml')
-
-
-class InjectAgentMiddleware(object):
-
-    def process_response(self, request, response):
-        "Insert necessary javascript to set device info cookie."
-        if not getattr(response, 'streaming', False):
-            is_gzipped = 'gzip' in response.get('Content-Encoding', '')
-            is_html = response.get('Content-Type', '').split(';')[0] in _HTML_TYPES
-            if is_html and not is_gzipped:
-                pattern = re.compile(b'</head>', re.IGNORECASE)
-                agent_script = Template('{% load tml_inline %}{% tml_inline_header %}').render(Context({}))
-                # import pdb; pdb.set_trace()
-                response.content = pattern.sub(bytes(agent_script) + b'</head>', response.content)
-                response['Content-Length'] = len(response.content)
-
-        return response
