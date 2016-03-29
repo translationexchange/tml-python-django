@@ -4,14 +4,5 @@
 
 
 {% block content %}
-{% tr with michael=users.michael|trproperty:'name' %} Dear {michael} {% endtr %}
-{% tr with anna=users.anna|trattribute:'name' %} Dear {anna} {% endtr %}
-{% tr with thomas=users.thomas|trvalue:users.thomas.gender %} Dear {thomas} {% endtr %}
-<ul>
-{% for person in user_list %}
-<li>{% tr with person=person %} This is {person||he,she} {% endtr %}</li>
-{% endfor %}
-</ul>
-
-{% tr with count=user_list|length people=user_list|trvalue:'<strong>{$0}</strong>' people_options='{"limit": 4, "joiner": "or", "separator": " | "}' %} There are {count} of us: {people}  {% endtr %}
+{% tr with users=user_list|trproperty:'name' %}{users:list||has, have} arrived at {users:gender|his,her,their} destination. {% endtr %}
 {% endblock %}

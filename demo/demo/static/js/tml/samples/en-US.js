@@ -16,7 +16,7 @@
     {separator: true, label: "Gender Rules"},
     {label: "{user|male:He,female:She,other:He/She} likes this movie.", tokens: {user: "other"}},
     {label: "{user|He,She} likes this movie.", tokens: {user: "male"}},
-    {label: "{user} uploaded a photo of {user|himself,herself}.", tokens: {user: {"gender": "female", "name": "Anna"}}},
+    {label: "{user} uploaded a photo of {user|himself,herself}.", tokens: {user: [{"gender": "female", "name": "Anna"}, ":name"]}},
 
     {separator: true, label: "Decorators"},
 
@@ -28,8 +28,8 @@
 
     {separator: true, label: "Implied Tokens"},
 
-    {label: "{user|He,She} likes this post.", tokens: {"user": {"gender": "male", "name": "Michael"}}},
-    {label: "{user|Dear} {user}", tokens: {"user": {"gender": "other", "name": "Michael"}}},
+    {label: "{user|He,She} likes this post.", tokens: {"user": [{"gender": "male", "name": "Michael"},":name"]}},
+    {label: "{user|Dear} {user}", tokens: {"user": [{"gender": "other", "name": "Michael"}, ':name']}},
 
     // {separator: true, label: "Lists"},
 

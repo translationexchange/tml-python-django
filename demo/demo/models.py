@@ -6,8 +6,8 @@ __autor__ = 'xepa4ep'
 class User(object):
     GENDERS = MALE, FEMALE = ('male', 'female')
 
-    gender = None
     name = None
+    gender = None
 
     def __init__(self, name, gender=None):
         self.name = name

@@ -125,6 +125,19 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+def get_gender(x):
+
+    def _get_gender(sex):
+        if sex == 1:
+            return 'male'
+        elif sex == 2:
+            return 'female'
+        return 'other'
+
+    if hasattr(x, 'items'):
+        return _get_gender(x['sex'])
+    return _get_gender(getattr(x, 'sex', ''))
+
 TML = {
     'environment': 'dev',
     'application': {'key': '600d6ee64b2c59db3b1244e04ab42c92e50c26459e5e7740ef6a6cc77c76fe34'},
@@ -135,6 +148,14 @@ TML = {
         'backend': 'pylibmc',
         'namespace': 'foody'
     },
+
+    # 'context_rules': {
+    #     'gender': {
+    #         'variables': {
+    #             '@gender': lambda x: get_gender(x)
+    #         }
+    #     }
+    # },
     # 'cache': {
     #     'enabled': True,
     #     'adapter': 'file',
