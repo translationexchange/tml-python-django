@@ -53,4 +53,6 @@ def get_current_locale():
 if settings.TML.pop('monkeypatch', False):
     translation._trans = Translation.instance()
 
+    from tml.monkeypatch import patch_types
+    patch_types()   # patch types to use localization methods as native
 
