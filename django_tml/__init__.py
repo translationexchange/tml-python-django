@@ -7,7 +7,7 @@ from tml.logger import get_logger
 from tml import get_context as get_current_context, get_current_language,  with_block_options
 
 
-__VERSION__ = '0.2.17'
+__VERSION__ = '0.2.18'
 
 
 def tr(label, data = None, description = None, options = {}):
