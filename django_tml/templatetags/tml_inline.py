@@ -23,12 +23,12 @@ class TmlInlineNode(Node):
             t = ts()
             t -= (t % agent_config['cache'])
             agent_host += "?ts=%s" % t
-        agent_config['locale'] = translation.get_language()
-        agent_config['source'] = translation.source
+        agent_config['locale'] = translation.context.locale
+        agent_config['source'] = translation.context.source
         agent_config['css'] = translation.application.css
         agent_config['sdk'] = full_version()
         languages = agent_config.setdefault('languages', [])
-        for language in translation.languages:
+        for language in translation.application.languages:
             languages.append({
                 'locale': language.locale,
                 'native_name': language.native_name,

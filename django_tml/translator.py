@@ -154,7 +154,8 @@ class Translation(LoggerMixin):
 
     def get_language(self):
         """ getter to current language """
-        return self.locale or self.config.default_locale
+        locale = self.locale or self.config.default_locale
+        return self.config.get(locale, locale)
 
     def activate(self, locale):
         """ Activate selected language
