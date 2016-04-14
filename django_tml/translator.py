@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 # encoding: UTF-8
 from django.conf import settings as django_settings
-from django.utils.translation.trans_real import to_locale, templatize, deactivate_all, parse_accept_lang_header, language_code_re, language_code_prefix_re, get_language_from_path
+from django.utils.translation.trans_real import to_locale, templatize, deactivate_all, parse_accept_lang_header, language_code_re, language_code_prefix_re, get_language_from_path, to_locale
 from tml.web_tools.translator import BaseTranslation
 from .tml_cookies import TmlCookieHandler
 
@@ -68,3 +68,6 @@ class Translation(BaseTranslation):
             fn(response)
         self.deactivate()
         self.deactivate_source()
+
+    def to_locale(self, language):
+        return to_locale(language)
