@@ -16,7 +16,7 @@ from django.template.defaulttags import token_kwargs
 from django.utils import six, translation
 import sys
 from django.utils.translation.trans_real import trim_whitespace
-from django.utils.safestring import SafeData, mark_safe
+from django.utils.safestring import SafeData, mark_safe, SafeString
 from django_tml import Translation
 from tml import legacy
 from django.templatetags.i18n import BlockTranslateNode as BaseBlockTranslateNode, TranslateNode as BaseTranslateNode
@@ -578,3 +578,12 @@ def trs(value, description=None):
         get_logger().exception(e)
         return value
         # return handle_tml_exception(e, strict=Translation.instance().config.get('strict_mode', False))
+
+
+@register.simple_tag
+def tml_stylesheet_link(ltr, rtl):
+    translation = Translation.instance()
+    link = ltr
+    if translation.context.language.right_to_left:
+        link = rtl
+    return SafeString('<link href="%(link)s" rel="stylesheet">' % {'link':link})
