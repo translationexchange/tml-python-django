@@ -13,7 +13,7 @@ from tml.decoration.parser import parse as decoration_parser
 
 
 def get_translation(label, data, description, locale):
-    activate(locale, dry_run=True)
+    activate(locale)
     language = Translation.instance().context.language
     option = TranslationOption(label, language)
     return decoration_parser(option.execute(data, options={})).render(data)
@@ -61,8 +61,10 @@ class DocsView(TemplateView):
         return super(DocsView, self).get_context_data(**kwargs)
 
 
+
 class ConsoleView(TemplateView):
     template_name = 'docs/docs.html'
+
 
 class DummyView(TemplateView):
     template_name = 'docs/dummy.html'
