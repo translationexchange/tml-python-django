@@ -34,6 +34,8 @@ class TmlControllerMiddleware(object):
 
     def process_response(self, request, response):
         """Teardown tml"""
+        if not self.translation:
+            return response
         if self.translation.config['agent']['enabled'] and self.translation.config['agent']['force_injection']:
             if not getattr(response, 'streaming', False):
                 is_gzipped = 'gzip' in response.get('Content-Encoding', '')

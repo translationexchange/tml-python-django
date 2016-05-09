@@ -2,6 +2,7 @@ from __future__ import absolute_import
 # encoding: UTF-8
 from django.conf import settings as django_settings
 from django.utils.translation.trans_real import to_locale, templatize, deactivate_all, parse_accept_lang_header, language_code_re, language_code_prefix_re, get_language_from_path, to_locale
+from django.utils.translation import LANGUAGE_SESSION_KEY
 from tml.web_tools.translator import BaseTranslation
 from .tml_cookies import TmlCookieHandler
 
