@@ -16,7 +16,7 @@ from django.template.defaulttags import token_kwargs
 from django.utils import six, translation
 import sys
 from django.utils.translation.trans_real import trim_whitespace
-from django.utils.safestring import SafeData, mark_safe
+from django.utils.safestring import SafeData, mark_safe, SafeString
 from django_tml import Translation
 from tml import legacy
 from django.templatetags.i18n import BlockTranslateNode as BaseBlockTranslateNode, TranslateNode as BaseTranslateNode
@@ -32,6 +32,8 @@ from tml.rules.engine import Error as EngineError
 from tml.rules.options import Error as OptionsError
 from tml.rules.parser import ParseError
 from tml.decoration import AttributeIsNotSet, UnsupportedTag
+from tml.tokenizers.dom import DomTokenizer
+
 
 register = Library()
 
@@ -198,6 +200,18 @@ class BlockTranslateNode(BaseBlockTranslateNode, LoggerMixin):
         except Exception as e:
             self.exception(e)
             return handle_tml_exception(e, strict=Translation.instance().config.get('strict_mode', False))
+
+
+class TrhTranslateNode(BlockTranslateNode):
+
+   def translate(self, label, data, description, options=None):
+       try:
+           tokenizer = DomTokenizer({}, options)
+           value = tokenizer.translate(label)
+           return value
+       except Exception as e:
+           self.exception(e)
+           return handle_tml_exception(e)
 
 
 class LegacyBlockTranlationNode(BlockTranslateNode):
@@ -578,3 +592,95 @@ def trs(value, description=None):
         get_logger().exception(e)
         return value
         # return handle_tml_exception(e, strict=Translation.instance().config.get('strict_mode', False))
+
+
+@register.simple_tag
+def tml_stylesheet_link(ltr, rtl):
+    translation = Translation.instance()
+    link = ltr
+    if translation.context.language.right_to_left:
+        link = rtl
+    return SafeString('<link href="%(link)s" rel="stylesheet">' % {'link':link})
+
+
+@register.tag('trh')
+def do_trh_tag(parser, token):
+    bits = token.split_contents()
+    close_token = 'endtrh'
+    options = {}
+    remaining_bits = bits[1:]
+    asvar = None
+    while remaining_bits:
+        option = remaining_bits.pop(0)
+        if option in options:
+            raise TemplateSyntaxError('The %r option was specified more '
+                                      'than once.' % option)
+        if option == 'with':
+            value = token_kwargs(remaining_bits, parser, support_legacy=True)
+            if not value:
+                raise TemplateSyntaxError('"with" in %r tag needs at least '
+                                          'one keyword argument.' % bits[0])
+        elif option == 'count':
+            value = token_kwargs(remaining_bits, parser, support_legacy=True)
+            if len(value) != 1:
+                raise TemplateSyntaxError('"count" in %r tag expected exactly '
+                                          'one keyword argument.' % bits[0])
+        elif option == "context":
+            try:
+                value = remaining_bits.pop(0)
+                value = parser.compile_filter(value)
+            except Exception:
+                msg = (
+                    '"context" in %r tag expected '
+                    'exactly one argument.') % bits[0]
+                six.reraise(TemplateSyntaxError, TemplateSyntaxError(msg), sys.exc_info()[2])
+        elif option == "asvar":
+            try:
+                value = remaining_bits.pop(0)
+            except IndexError:
+                msg = "No argument provided to the '%s' tag for the asvar option." % bits[0]
+                six.reraise(TemplateSyntaxError, TemplateSyntaxError(msg), sys.exc_info()[2])
+            asvar = value
+        elif option == "trimmed":
+            value = True
+        elif option == "nowrap":
+            value = True
+        else:
+            raise TemplateSyntaxError('Unknown argument for %r tag: %r.' %
+                                      (bits[0], option))
+        options[option] = value
+
+    if 'count' in options:
+        countervar, counter = list(six.iteritems(options['count']))[0]
+    else:
+        countervar, counter = None, None
+    if 'context' in options:
+        message_context = options['context']
+    else:
+        message_context = None
+    extra_context = options.get('with', {})
+
+    trimmed = options.get("trimmed", False)
+
+    singular = []
+    plural = []
+    while parser.tokens:
+        token = parser.next_token()
+        if token.token_type in (TOKEN_VAR, TOKEN_TEXT):
+            singular.append(token)
+        else:
+            break
+    if countervar and counter:
+        if token.contents.strip() != 'plural':
+            raise TemplateSyntaxError("'tr' doesn't allow other block tags inside it")
+        while parser.tokens:
+            token = parser.next_token()
+            if token.token_type in (TOKEN_VAR, TOKEN_TEXT):
+                plural.append(token)
+            else:
+                break
+    if token.contents.strip() != close_token:
+        raise TemplateSyntaxError("'tr' doesn't allow other block tags (seen %r) inside it" % token.contents)
+
+    return TrhTranslateNode(extra_context, singular, plural, countervar,
+                              counter, message_context, trimmed = trimmed, legacy = legacy, nowrap = options.get('nowrap', False), asvar=asvar)

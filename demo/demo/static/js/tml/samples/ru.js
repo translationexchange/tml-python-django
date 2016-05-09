@@ -1,6 +1,6 @@
 (function() {
   addExamples("ru", "Russian", [
-     {separator: true, label: "Основы"},
+    {separator: true, label: "Основы"},
 
     {label: "Привет Мир"},
     {label: "Орган", description: "Человеческий орган - Орган"},
@@ -18,7 +18,7 @@
 
     {label: "{user||male:родился,female:родилась,other:родился/лась} в 1979 году. ", tokens: {"user":[{"name":"Анна", "gender":"female"},":name"]}},
     {label: "{user||родился,родилась} в 1979 году. ", tokens: {user: [{gender: "female", name: "Анна"}, ":name"]}},
-    {label: "{user||загрузил,загрузила} фотографию в свой фотоальбом.", tokens: {user: [{gender: "male", name: "Михаил"},":name"]}},
+    {label: "{user||загрузил,загрузила} фотографию в свой фотоальбом.", tokens: {user: [{gender: "male", name: "Михаил"}, ":name"]}},
 
     {separator: true, label: "Декораторы"},
 
@@ -30,9 +30,9 @@
 
     {separator: true, label: "Подразумеваемые"},
 
-    {label: "{user|Он,Она} любит читать газеты.", tokens: {user: [{gender: "male"},""]}},
-    {label: "{user|Ему,Ей} нравится это сообщение.", tokens: {user: [{gender: "female"},""]}},
-    {label: "{user|Дорогой,Дорогая} {user}", tokens: {user: [{gender: "male", name: "Михаил"},":name"]}},
+    {label: "{user|Он,Она} любит читать газеты.", tokens: {user: [{gender: "male"}, ":name"]}},
+    {label: "{user|Ему,Ей} нравится это сообщение.", tokens: {user: [{gender: "female"},":name"]}},
+    {label: "{user|Дорогой,Дорогая} {user}", tokens: {user: [{gender: "male", name: "Михаил"}, ":name"]}},
 
     // {separator: true, label: "Списки"},
 
@@ -48,18 +48,16 @@
 
     {label: "{actor||послал,послала} сообщение {target::dat}", tokens: {
       actor: [{gender: "male", name: "Михаил"}, ":name"],
-      target: [{gender: "female", name: "Анна"},":name"]
+      target: [{gender: "female", name: "Анна"}, ":name"]
     }},
 
     // {label: "Это сообщение было адресованно {users::dat}.", tokens: {users: [[{gender: "female", name:"Анна"}], {attribute: "name"}, {joiner: "и"}]}},
     // {label: "Это сообщение было адресованно {users::dat}.", tokens: {users: [[{gender: "male", name:"Михаил"}, {gender: "female", name:"Анна"}], {attribute: "name", value: "<strong>{$0}</strong>"}, {joiner: "и"}]}},
 
     {label: "[bold: {actor}] {actor|загрузил,загрузила} [bold: {count||фотографию,фотографии,фотографий}] в фотоальбом [bold: {target::gen}].", tokens: {
-      actor: [{name: "Михаил", gender: "male"}, ":name"],
-      target: [{name: "Анна", gender: "female"}, ":name"],
+      actor: [{gender: "male", name: "Михаил"}, ":name"],
+      target: [{gender: "female", name: "Анна"}, ":name"],
       count: 3
     }}
   ])
 })();
-
-

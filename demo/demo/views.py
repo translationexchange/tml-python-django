@@ -7,9 +7,11 @@ from .models import User
 from django.views.decorators.csrf import csrf_exempt
 from django_tml import tr, activate, activate_source, deactivate_source
 from django_tml.translator import Translation
+from django.utils.html import escape
 from tml.translation import TranslationOption
 from tml.strings import to_string
 from tml.decoration.parser import parse as decoration_parser
+from tml.tokenizers.dom import DomTokenizer
 
 
 def get_translation(label, data, description, locale):
@@ -17,6 +19,13 @@ def get_translation(label, data, description, locale):
     language = Translation.instance().context.language
     option = TranslationOption(label, language)
     return decoration_parser(option.execute(data, options={})).render(data)
+
+
+def get_trh_translation(label, data, description, locale):
+    activate(locale)
+    dt = DomTokenizer({}, {'debug': True})
+    return dt.translate(label)
+
 
 @csrf_exempt
 def translate(request):
@@ -26,8 +35,12 @@ def translate(request):
     data = loads(request.POST.get('tml_tokens') or "{}")
     description = request.POST.get('tml_context')
     locale = request.POST.get('tml_locale')
-    trans_value = get_translation(label, data, description, locale)
-    return HttpResponse(trans_value)
+    trh = request.POST.get('trh')
+    if trh:
+        trans_value = get_trh_translation(label, data, description, locale)
+    else:
+        trans_value = get_translation(label, data, description, locale)
+    return HttpResponse(escape(trans_value))
 
 
 class IndexView(TemplateView):
@@ -61,8 +74,10 @@ class DocsView(TemplateView):
         return super(DocsView, self).get_context_data(**kwargs)
 
 
+
 class ConsoleView(TemplateView):
     template_name = 'docs/docs.html'
+
 
 class DummyView(TemplateView):
     template_name = 'docs/dummy.html'
